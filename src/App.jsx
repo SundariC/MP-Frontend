@@ -8,6 +8,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import ClientSignUp from './pages/ClientSignUp';
 import DashBoard from './pages/DashBoard';
+import BrowserCounselors from './pages/BrowserCounselors';
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<ClientSignUp />} />
              <Route path="/dashboard" element={<DashBoard />} />
+             <Route path="/browsercounselors" element={<BrowserCounselors />} />
+             <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
 

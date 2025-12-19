@@ -26,7 +26,7 @@ const DashBoard = () => {
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-[#0D9488] text-white shadow-lg shadow-teal-100">
             <LayoutDashboard size={20}/> Dashboard
           </button>
-          <button onClick={() => navigate('/browse')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-50 transition">
+          <button onClick={() => navigate('/browsercounselors')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-50 transition">
             <Users size={20}/> Find Counselor
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-50 transition">
@@ -114,7 +114,7 @@ const DashBoard = () => {
                 </div>
                 <h4 className="font-bold text-slate-900 mb-2">Find a new counselor</h4>
                 <p className="text-xs text-slate-600 mb-6 leading-relaxed">Browse our directory of licensed professionals to find the perfect match.</p>
-                <button onClick={() => navigate('/browse')} className="w-full py-3 bg-white text-slate-900 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition">Browse Counselors</button>
+                <button onClick={() => navigate('/browsercounselors')} className="w-full py-3 bg-white text-slate-900 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition">Browse Counselors</button>
              </div>
           </div>
         </div>
