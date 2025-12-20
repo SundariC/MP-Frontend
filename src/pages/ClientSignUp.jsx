@@ -39,7 +39,7 @@ const ClientSignUp = () => {
                         <label className= "block text-sm font-bold text-slate-700 mb-2">Email Address</label>
                         <input 
                             type= "email" required 
-                            className= "w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-real-500 outline transition"
+                            className= "w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-real-500 outline-none transition"
                             placeholder= "name@example.com"
                             onChange= {(e) => setFormData({...formData, email:e.target.value})}/>
                         </div>
@@ -47,7 +47,7 @@ const ClientSignUp = () => {
                         <label className= "block text-sm font-bold text-slate-700 mb-2">Password</label>
                         <input 
                             type= "password" required 
-                            className= "w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-real-500 outline transition"
+                            className= "w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-real-500 outline-none transition"
                             placeholder= "Create a strong password"
                             onChange= {(e) => setFormData({...formData, password:e.target.value})}/>
                         </div>
@@ -56,7 +56,7 @@ const ClientSignUp = () => {
                         </button>
                     </form>
                     <p className = "text-center mt-6 text-slate-600 text-sm">
-                        Already have an account? <span onClick={() => navigate('/login')} className= "text-teal-600 font-bold cursot-pointer hover:underline">Login</span>
+                        Already have an account? <span onClick={() => navigate('/login')} className= "text-teal-600 font-bold cursor-pointer hover:underline">Login</span>
                     </p>
                 </div>
             </div>

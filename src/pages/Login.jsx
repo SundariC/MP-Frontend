@@ -2,23 +2,31 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from "../context/AuthContext"; // ✅ AuthContext import panniyachu
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
+  
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:3000/api/auth/login', formData);
-      
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+    
+      login(res.data.user, res.data.token);
 
       toast.success("Login Successful! Welcome back.");
 
-      navigate('/');
+      if (res.data.user.role === "counselor") {
+        navigate('/counselor-dashboard');
+      } else {
+        navigate('/client-dashboard');
+      }
+
     } catch (err) {
+      console.error("Login Error:", err);
       toast.error(err.response?.data?.message || "Invalid Email or Password!");
     }
   };
@@ -50,7 +58,7 @@ const Login = () => {
               onChange={(e) => setFormData({...formData, password: e.target.value})}
             />
           </div>
-          <button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-teal-100 transition-all transform hover:-translate-y-1">
+          <button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-teal-100 transition-all transform hover:-translate-y-1">
             Log In
           </button>
         </form>

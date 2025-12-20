@@ -7,9 +7,11 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import ClientSignUp from './pages/ClientSignUp';
-import DashBoard from './pages/DashBoard';
+import ClientDashboard from './pages/ClientDashboard';
 import BrowserCounselors from './pages/BrowserCounselors';
-import Profile from "./pages/Profile";
+import CounselorSignup from './pages/CounselorSignUp';
+import CheckoutPage from "./pages/CheckoutPage";
+import CounselorDashboard from './pages/CounselorDashboard';
 
 function App() {
   return (
@@ -23,9 +25,11 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<ClientSignUp />} />
-             <Route path="/dashboard" element={<DashBoard />} />
-             <Route path="/browsercounselors" element={<BrowserCounselors />} />
-             <Route path="/profile" element={<Profile />} />
+            <Route path="/counselor-signup" element={<CounselorSignup />} />
+             <Route path="/client-dashboard" element={<ClientDashboard />} />
+             <Route path="/counselor-dashboard" element={<CounselorDashboard />} />
+             <Route path="/browserCounselors" element={<BrowserCounselors />} />
+             <Route path="/checkoutPage" element={<CheckoutPage />} />
           </Routes>
         </main>
 

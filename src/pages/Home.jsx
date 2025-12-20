@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Image1 from "../assets/image1.jpg";
+import Image2 from "../assets/image2.jpg";
+import Image3 from "../assets/image3.jpg";
 import { 
   ShieldCheck, 
   Lock, 
@@ -55,7 +58,7 @@ const Home = () => {
 
   const goToDashboard = () => {
     if (user.role === 'client') {
-      navigate('/dashboard');
+      navigate('/client-dashboard');
     } else {
       navigate('/counselor-dashboard');
     }
@@ -105,7 +108,7 @@ const Home = () => {
         </div>
         <div className="flex-1">
           <img 
-            src="https://cdn.pixabay.com/photo/2017/09/01/21/53/blue-2705642_1280.jpg" 
+            src={Image3}
             className="w-full rounded-[2.5rem] shadow-xl object-cover max-h-[450px]" 
             alt="Hero" 
           />
@@ -165,7 +168,7 @@ const Home = () => {
       {/* 4. FLEXIBLE CARE (Client Section) */}
       <section id="client-section" className="py-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
         <div className="flex-1">
-          <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1000" className="w-full rounded-[2rem] shadow-lg max-h-[350px] object-cover" alt="Client" />
+          <img src={Image2} className="w-full rounded-[2rem] shadow-lg max-h-[350px] object-cover" alt="Client" />
         </div>
         <div className="flex-1 space-y-6">
           <span className="text-[#0D9488] font-bold text-[10px] uppercase tracking-widest">For Clients</span>
@@ -184,7 +187,7 @@ const Home = () => {
       {/* 5. GROW YOUR PRACTICE (Counselor Section) */}
       <section id="counselor-section" className="py-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row-reverse items-center gap-16">
         <div className="flex-1">
-          <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&h=400&fit=crop" className="w-full rounded-[2rem] shadow-lg max-h-[350px] object-cover" alt="Counselor" />
+          <img src={Image1} className="w-full rounded-[2rem] shadow-lg max-h-[350px] object-cover" alt="Counselor" />
         </div>
         <div className="flex-1 space-y-6 text-left">
           <span className="text-teal-500 font-bold text-[10px] uppercase tracking-widest">For Counselors</span>

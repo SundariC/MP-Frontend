@@ -3,7 +3,7 @@ import axios from 'axios';
 import { LayoutDashboard, Users, Calendar, FileText, CreditCard, LogOut, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const DashBoard = () => {
+const ClientDashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
   const [sessions, setSessions] = useState([]); // Default empty array (No fake data)
@@ -18,9 +18,9 @@ const DashBoard = () => {
     <div className="flex min-h-screen bg-[#F8FAFC]">
       {/* SIDEBAR */}
       <aside className="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-6">
-        <div className="flex items-center gap-2 text-[#0D9488] font-bold text-xl mb-10">
+        {/* <div className="flex items-center gap-2 text-[#0D9488] font-bold text-xl mb-10">
           <div className="w-8 h-8 bg-[#0D9488] rounded-lg"></div> MindConnect
-        </div>
+        </div> */}
         
         <nav className="space-y-2 flex-grow">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-[#0D9488] text-white shadow-lg shadow-teal-100">
@@ -49,7 +49,7 @@ const DashBoard = () => {
               <p className="text-[10px] text-slate-400 font-bold uppercase">Client Account</p>
             </div>
           </div>
-          <button onClick={() => {localStorage.clear(); navigate('/login');}} className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-700">
+          <button onClick={() => {localStorage.clear(); navigate('/');}} className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-700">
             <LogOut size={16}/> Logout
           </button>
         </div>
@@ -83,7 +83,7 @@ const DashBoard = () => {
                     <Calendar size={30}/>
                   </div>
                   <p className="text-slate-400 text-sm font-medium">No upcoming sessions found.</p>
-                  <button onClick={() => navigate('/browse')} className="mt-4 text-[#0D9488] font-bold text-sm hover:underline">Book a session now</button>
+                  <button onClick={() => navigate('/browsercounselors')} className="mt-4 text-[#0D9488] font-bold text-sm hover:underline">Book a session now</button>
                 </div>
               )}
             </div>
@@ -123,4 +123,4 @@ const DashBoard = () => {
   );
 };
 
-export default DashBoard;
+export default ClientDashboard;
