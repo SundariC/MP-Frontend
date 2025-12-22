@@ -42,28 +42,28 @@ const CounselorSignup = () => {
 
         <form onSubmit={handleSignup} className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="md:col-span-2">
-            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Legal First & Last Name</label>
-            <input type="text" required placeholder="Dr. Jane Smith"
+            <label className="block text-xs font-black uppercase text-slate-600 mb-2">Legal First & Last Name</label>
+            <input type="text" required placeholder="Enter your name"
               className="w-full p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-teal-500 outline-none transition font-bold"
               onChange={(e) => setFormData({...formData, fullName: e.target.value})} />
           </div>
 
           <div>
-            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Work Email</label>
-            <input type="email" required placeholder="jane@practice.com"
+            <label className="block text-xs font-black uppercase text-slate-600 mb-2">Work Email</label>
+            <input type="email" required placeholder="name@gmail.com"
               className="w-full p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-teal-500 outline-none transition font-bold"
               onChange={(e) => setFormData({...formData, email: e.target.value})} />
           </div>
 
           <div>
-            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Price per Session (₹)</label>
-            <input type="number" required placeholder="500"
+            <label className="block text-xs font-black uppercase text-slate-600 mb-2">Price per Session (₹)</label>
+            <input type="number" required placeholder="Amount"
               className="w-full p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-teal-500 outline-none transition font-bold"
               onChange={(e) => setFormData({...formData, price: e.target.value})} />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Licensure Type / Specialization</label>
+            <label className="block text-xs font-black uppercase text-slate-600 mb-2">Licensure Type / Specialization</label>
             <select className="w-full p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-teal-500 outline-none transition font-bold text-slate-600"
               onChange={(e) => setFormData({...formData, specialization: e.target.value})}>
               <option value="">Select Specialization</option>
@@ -74,8 +74,8 @@ const CounselorSignup = () => {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-xs font-black uppercase text-slate-400 mb-2">Password</label>
-            <input type="password" required placeholder="••••••••"
+            <label className="block text-xs font-black uppercase text-slate-600 mb-2">Password</label>
+            <input type="password" required placeholder="Create a strong password"
               className="w-full p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-teal-500 outline-none transition font-bold"
               onChange={(e) => setFormData({...formData, password: e.target.value})} />
           </div>
@@ -84,6 +84,12 @@ const CounselorSignup = () => {
             Start Application
           </button>
         </form>
+        <p className="text-center mt-6 font-bold text-slate-600">
+          Already have a counselor account? 
+          <span onClick={() => navigate('/login')} className="text-teal-600 cursor-pointer ml-2 hover:underline">
+            Login here
+          </span>
+        </p>
       </div>
     </div>
   );

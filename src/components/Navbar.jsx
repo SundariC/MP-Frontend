@@ -1,30 +1,30 @@
 import React, { useState, useRef } from 'react';
-import { LogOut, Mail, LayoutDashboard, ChevronDown } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { LogOut, Mail, LayoutDashboard, ChevronDown, UserPlus, UserCircle } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from "../context/AuthContext"; // ✅ AuthContext import
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
-  const [ showDropdown, setShowDropdown ] = useState(false);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showSignupDropdown, setShowSignupDropdown] = useState(false);
+  
+  // ✅ Context-la irundhu user and logout edukirom
+  const { user, logout } = useAuth(); 
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.location.reload();
+    logout(); // ✅ Global-ah logout aagum and redirect aagum
   };
 
   const handleScroll = (sectionId) => {
-    
     if (location.pathname !== '/') {
       navigate('/');
-      
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         element?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } else {
-      
       const element = document.getElementById(sectionId);
       element?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -39,7 +39,7 @@ const Navbar = () => {
         <span className="text-2xl font-bold text-slate-800 tracking-tight">MindConnect</span>
       </div>
 
-      <div className="flex items-center gap-8">
+     <div className="flex items-center gap-8">
         <div className="hidden lg:flex gap-8 text-sm font-bold text-slate-500">
           <span onClick={() => handleScroll('services-section')} className="hover:text-[#0D9488] cursor-pointer transition-colors">Services</span>
           <span onClick={() => handleScroll('how-it-works')} className="hover:text-[#0D9488] cursor-pointer transition-colors">How It Works</span>
@@ -61,10 +61,7 @@ const Navbar = () => {
                 alt="profile"
               />
               <div className="hidden md:block text-left">
-                {/* User Name - Login-la 'fullName' nu save panni irukanum */}
-                <p className="text-xs font-bold text-slate-800 leading-none mb-1">
-                    {user.fullName || 'No Name'} 
-                </p>
+                <p className="text-xs font-bold text-slate-800 leading-none mb-1">{user.fullName}</p>
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{user.role}</p>
               </div>
               <ChevronDown size={14} className={`text-slate-400 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
@@ -72,30 +69,17 @@ const Navbar = () => {
 
             {showDropdown && (
               <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 z-[110] animate-in fade-in zoom-in duration-150">
-                <div className="p-3 border-b border-slate-50 mb-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Signed in as</p>
-                  <p className="text-xs font-bold text-slate-600 truncate flex items-center gap-2">
-                    <Mail size={12} className="text-[#0D9488]" /> 
-                    {user.email || 'No Email Found'}
-                  </p>
-                </div>
-                
                 <button 
                   onClick={() => {
-                    const target = user.role === 'client' ? '/client-dashboard' : '/counselor-dashboard';
-                    navigate(target);
+                    navigate(user.role === 'client' ? '/client-dashboard' : '/counselor-dashboard');
                     setShowDropdown(false);
                   }}
-                  className="flex items-center gap-3 w-full p-3 hover:bg-teal-50 rounded-xl text-sm font-bold text-slate-700 transition-all mb-1 group"
+                  className="flex items-center gap-3 w-full p-3 hover:bg-teal-50 rounded-xl text-sm font-bold text-slate-700 mb-1 group"
                 >
                   <LayoutDashboard size={18} className="text-slate-400 group-hover:text-[#0D9488]" />
                   My Dashboard
                 </button>
-
-                <button 
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 w-full p-3 hover:bg-red-50 rounded-xl text-sm font-bold text-red-500 transition-all"
-                >
+                <button onClick={handleLogout} className="flex items-center gap-3 w-full p-3 hover:bg-red-50 rounded-xl text-sm font-bold text-red-500">
                   <LogOut size={18} /> Logout
                 </button>
               </div>
@@ -104,7 +88,30 @@ const Navbar = () => {
         ) : (
           <div className="flex gap-6 items-center">
             <button onClick={() => navigate('/login')} className="text-sm font-bold text-slate-600">Log in</button>
-            <button onClick={() => navigate('/signup')} className="bg-[#0D9488] text-white px-8 py-3 rounded-full text-sm font-bold hover:shadow-lg hover:shadow-teal-100 transition-all">Sign Up</button>
+            
+            {/* ✅ Signup Dropdown Logic */}
+            <div className="relative">
+              <button 
+                onMouseEnter={() => setShowSignupDropdown(true)}
+                className="bg-[#0D9488] text-white px-8 py-3 rounded-full text-sm font-bold hover:shadow-lg hover:shadow-teal-100 transition-all"
+              >
+                Sign Up
+              </button>
+              
+              {showSignupDropdown && (
+                <div 
+                  onMouseLeave={() => setShowSignupDropdown(false)}
+                  className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 z-[110]"
+                >
+                  <Link to="/signup" className="flex items-center gap-3 p-3 hover:bg-teal-50 rounded-xl text-sm font-bold text-slate-700">
+                    <UserCircle size={18} className="text-[#0D9488]" /> As a Client
+                  </Link>
+                  <Link to="/counselor-signup" className="flex items-center gap-3 p-3 hover:bg-teal-50 rounded-xl text-sm font-bold text-slate-700 border-t mt-1">
+                    <UserPlus size={18} className="text-[#0D9488]" /> As a Counselor
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -113,3 +120,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
