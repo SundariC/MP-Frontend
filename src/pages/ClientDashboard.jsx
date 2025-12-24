@@ -23,9 +23,11 @@ const ClientDashboard = () => {
   const SESSION_PRICE = 500;
 
   // ✅ FIXED PAYMENT LOGIC (amount field illa)
-  const totalPaid =
-    sessions.filter(session => session.isPaid === true).length *
-    SESSION_PRICE;
+  const totalPaid = sessions.reduce(
+  (acc, session) => acc + (Number(session.amount) || 0),
+  0
+);
+
 
   const fetchUserSessions = async () => {
     try {
