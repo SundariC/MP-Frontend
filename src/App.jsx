@@ -6,14 +6,15 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import ClientSignUp from './pages/ClientSignUp';
+// import ClientSignUp from './pages/ClientSignUp';
 import ClientDashboard from './pages/ClientDashboard';
 import BrowserCounselors from './pages/BrowserCounselors';
-import CounselorSignup from './pages/CounselorSignUp';
-import CheckoutPage from "./pages/CheckoutPage";
+// import CounselorSignup from './pages/CounselorSignUp';
+// import CheckoutPage from "./pages/CheckoutPage";
 import CounselorDashboard from './pages/CounselorDashboard';
 import ChatPage from './pages/ChatPage';
 import VideoCall from './pages/VideoCall';
+import Signup from './pages/Signup';
 
 function App() {
   return (
@@ -26,12 +27,13 @@ function App() {
           <Routes>
              <Route path="/" element={<Home />} />
              <Route path="/login" element={<Login />} />
-             <Route path="/signup" element={<ClientSignUp />} />
-             <Route path="/counselor-signup" element={<CounselorSignup />} />
+             <Route path="/signup" element={<Signup />} />
+             {/* <Route path="/signup" element={<ClientSignUp />} />
+             <Route path="/counselor-signup" element={<CounselorSignup />} /> */}
              <Route path="/client-dashboard" element={<ClientDashboard />} />
              <Route path="/counselor-dashboard" element={<CounselorDashboard />} />
              <Route path="/browserCounselors" element={<BrowserCounselors />} />
-             <Route path="/checkoutPage" element={<CheckoutPage />} />
+             {/* <Route path="/checkoutPage" element={<CheckoutPage />} /> */}
              <Route path="/video-call/:sessionId" element={<VideoCall />} />
              <Route path="/chat/:sessionId" element={<ChatPage />} />
           </Routes>
