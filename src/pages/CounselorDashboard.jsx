@@ -1,226 +1,502 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import API from '../services/api';
-import { 
-  LayoutDashboard, Calendar, DollarSign, LogOut, 
-  Check, X, UserCog, Briefcase, Video, Edit3 
-} from 'lucide-react';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Video,
+  Check,
+  X,
+  LayoutDashboard,
+  ClipboardList,
+  Clock,
+  LogOut,
+  User,
+  CreditCard,
+  Bell,
+  Camera,
+  XCircle,
+  Save,
+  MessageCircle,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CounselorDashboard = () => {
-  const { user, logout } = useAuth();
+  const { token, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [sessions, setSessions] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [isEditing, setIsEditing] = useState(false); // Controls View vs Edit Mode
-  
+  const [selectedNote, setSelectedNote] = useState(null); 
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [showBellPopup, setShowBellPopup] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState("requests");
+  const [sessionNotes, setSessionNotes] = useState({});
+
   const [profile, setProfile] = useState({
-    specialization: '',
-    price: '',
-    bio: '',
-    experience: '',
-    location: ''
+    specialization: user?.specialization || "",
+    price: 500,
+    bio: user?.bio || "",
   });
 
-  const fetchDashboardData = async () => {
-    try {
-      // 1. Fetch Bookings
-      const bookingRes = await API.get('/bookings/my-bookings');
-      setBookings(bookingRes.data);
+  const SESSION_PRICE = 500;
 
-      // 2. Fetch Latest Profile Data from DB
-      const profileRes = await API.get('/auth/me');
-      if (profileRes.data) {
-        setProfile({
-          specialization: profileRes.data.specialization || '',
-          price: profileRes.data.price || '',
-          bio: profileRes.data.bio || '',
-          experience: profileRes.data.experience || '',
-          location: profileRes.data.location || ''
-        });
-      }
+  const fetchBookings = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:3000/api/bookings/my-bookings",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setBookings(res.data);
     } catch (err) {
-      console.error("Fetch Error:", err);
+      console.error("Fetch error", err);
+    }
+  };
+
+  const fetchUserSessions = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:3000/api/bookings/my-bookings",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setSessions(res.data);
+    } catch (err) {
+      console.error("Error fetching sessions", err);
     }
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (token) {
+      fetchBookings();
+      fetchUserSessions();
+    }
+  }, [token]);
 
-  const handleStatusUpdate = async (id, status) => {
+  const handleEndAndSave = async (bookingId) => {
     try {
-      await API.put(`/bookings/update-status/${id}`, { status });
-      toast.success(`Session ${status === 'confirmed' ? 'Accepted' : 'Cancelled'}`);
-      fetchDashboardData();
+      const notes = sessionNotes[bookingId] || "";
+      await axios.put(
+        "http://localhost:3000/api/bookings/update-status",
+        {
+          bookingId,
+          sessionStatus: "COMPLETED",
+          sessionNotes: notes,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Session completed & saved to Records!");
+      fetchBookings();
     } catch (err) {
-      toast.error("Status update failed");
+      toast.error("Update failed!");
     }
   };
 
-  const handleProfileUpdate = async (e) => {
-    e.preventDefault();
+  const updateStatus = async (bookingId, status) => {
     try {
-      const res = await API.put('/auth/update-profile', profile);
-      toast.success("Professional Profile Updated!");
-      
-      // Update local storage so data stays synced
-      const updatedUser = { ...user, ...res.data.user };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      setIsEditing(false); // ✅ Closes the form and shows View mode
+      await axios.put(
+        "http://localhost:3000/api/bookings/update-status",
+        { bookingId, sessionStatus: status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.info(`Status updated to ${status}`);
+      fetchBookings();
     } catch (err) {
-      toast.error("Update failed. Check your backend.");
+      toast.error("Failed to update.");
     }
   };
 
-  const totalEarnings = bookings
-    .filter(b => b.status === 'confirmed')
-    .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+  const totalPaid = sessions.reduce(
+    (acc, session) => acc + (Number(session.amount) || 0),
+    0
+  );
+  const requests = bookings.filter(
+    (b) => b.sessionStatus === "UPCOMING" && !b.videoLink
+  );
+  const activeSessions = bookings.filter(
+    (b) => b.sessionStatus === "UPCOMING" && b.videoLink
+  );
+  const completed = bookings.filter((b) => b.sessionStatus === "COMPLETED");
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] pt-20">
-      <main className="flex-1 p-6 lg:p-10">
-        <header className="mb-10 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900">Expert Console</h1>
-            <p className="text-slate-500 font-medium">Dr. {user?.fullName} • Dashboard</p>
+    <div className="flex min-h-screen bg-[#F8FAFC]">
+      <ToastContainer />
+
+      <aside className="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-6 sticky top-0 h-screen">
+        <div className="flex items-center gap-3 mb-10 px-2">
+          <div className="bg-[#0D9488] p-2 rounded-xl text-white font-black text-xl italic shadow-lg">
+            M
           </div>
-          <button onClick={logout} className="text-red-500 font-bold flex items-center gap-2 bg-red-50 px-4 py-2 rounded-xl hover:bg-red-100 transition">
-            <LogOut size={18}/> Logout
+          <span className="font-black text-slate-800 text-xl tracking-tighter italic">
+            MindConnect
+          </span>
+        </div>
+        <nav className="space-y-2 flex-grow text-left">
+          <button
+            onClick={() => setActiveTab("requests")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+              activeTab === "requests"
+                ? "bg-[#0D9488] text-white shadow-lg"
+                : "text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <Clock size={20} /> Requests
+          </button>
+          <button
+            onClick={() => setActiveTab("active")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+              activeTab === "active"
+                ? "bg-[#0D9488] text-white shadow-lg"
+                : "text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <Video size={20} /> Active
+          </button>
+          <button
+            onClick={() => setActiveTab("completed")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+              activeTab === "completed"
+                ? "bg-[#0D9488] text-white shadow-lg"
+                : "text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <ClipboardList size={20} /> Records
+          </button>
+        </nav>
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 mt-auto"
+        >
+          <LogOut size={20} /> Logout
+        </button>
+      </aside>
+
+      <main className="flex-grow p-8">
+        <header className="flex justify-between items-center mb-10">
+          <div className="text-left">
+            <h1 className="text-3xl font-black text-slate-900 leading-tight italic">
+              Dr. {user?.fullName?.split(" ")[0]}
+            </h1>
+            <p className="text-slate-500 font-medium italic text-sm text-left">
+              Counselor Dashboard
+            </p>
+          </div>
+          <button
+            onClick={() => setShowBellPopup(!showBellPopup)}
+            className="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-400 hover:text-teal-600 relative"
+          >
+            <Bell size={20} />
+            {showBellPopup && (
+              <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl border p-4 z-50 text-xs font-bold text-slate-500">
+                No new notifications
+              </div>
+            )}
           </button>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* LEFT: BOOKINGS LIST */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-              <h2 className="text-xl font-black text-slate-800 mb-8 flex items-center gap-2">
-                <Calendar size={22} className="text-teal-600"/> Appointment Requests
-              </h2>
+        <div className="grid lg:grid-cols-3 gap-8 text-left">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[500px]">
+              <h3 className="font-bold text-slate-800 mb-8 uppercase text-xs tracking-widest flex items-center gap-2">
+                Current {activeTab}
+                <span className="bg-teal-50 text-teal-600 px-2 py-0.5 rounded-lg">
+                  {activeTab === "requests"
+                    ? requests.length
+                    : activeTab === "active"
+                    ? activeSessions.length
+                    : completed.length}
+                </span>
+              </h3>
 
-              <div className="space-y-4">
-                {bookings.length > 0 ? bookings.map(booking => (
-                  <div key={booking._id} className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 hover:border-teal-100 transition-all">
-                    <div className="flex items-center gap-4 text-left w-full">
-                      <img 
-                        src={`https://ui-avatars.com/api/?name=${booking.client?.fullName}&background=0D9488&color=fff`} 
-                        className="w-12 h-12 rounded-2xl shadow-sm" alt="client"
-                      />
-                      <div>
-                        <p className="font-bold text-slate-800">{booking.client?.fullName}</p>
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                          {new Date(booking.appointmentDate).toLocaleDateString()} • {booking.timeSlot}
-                        </p>
+              <div className="space-y-6">
+                {activeTab === "requests" &&
+                  requests.map((b) => (
+                    <div
+                      key={b._id}
+                      className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-4 text-left">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-black text-teal-600 border border-slate-100">
+                          {b.client?.fullName?.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-black text-slate-800 italic">
+                            {b.client?.fullName}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">
+                            {new Date(b.appointmentDate).toDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => updateStatus(b._id, "UPCOMING")}
+                          className="bg-teal-600 text-white p-3 rounded-xl hover:bg-teal-700 shadow-md"
+                        >
+                          <Check size={18} />
+                        </button>
+                        <button
+                          onClick={() => updateStatus(b._id, "CANCELLED")}
+                          className="bg-white border text-red-500 p-3 rounded-xl hover:bg-red-50"
+                        >
+                          <X size={18} />
+                        </button>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-3 w-full md:w-auto">
-                      {booking.status === 'pending' ? (
-                        <>
-                          <button onClick={() => handleStatusUpdate(booking._id, 'confirmed')} className="flex-1 md:flex-none bg-teal-600 text-white p-3 rounded-2xl hover:bg-teal-700 transition shadow-lg shadow-teal-50"><Check size={20}/></button>
-                          <button onClick={() => handleStatusUpdate(booking._id, 'cancelled')} className="flex-1 md:flex-none bg-white border border-red-100 text-red-500 p-3 rounded-2xl hover:bg-red-50 transition"><X size={20}/></button>
-                        </>
-                      ) : (
-                        <div className="flex gap-2">
-                           {booking.status === 'confirmed' && (
-                             <button className="bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 shadow-lg shadow-slate-200"><Video size={14}/> Start</button>
-                           )}
-                           <span className={`text-[10px] font-black uppercase px-4 py-2 rounded-xl ${booking.status === 'confirmed' ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-slate-100 text-slate-400'}`}>
-                             {booking.status}
-                           </span>
+                  ))}
+
+                {activeTab === "active" &&
+                  activeSessions.map((b) => (
+                    <div
+                      key={b._id}
+                      className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-teal-600 shadow-sm">
+                            <User size={20} />
+                          </div>
+                          <div>
+                            <p className="font-black text-slate-800 italic">
+                              {b.client?.fullName}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-black italic">
+                              LIVE SESSION
+                            </p>
+                          </div>
                         </div>
-                      )}
+                        <button
+                          onClick={() => navigate(`/chat/${b._id}`)}
+                          className="p-2 bg-white border rounded-xl text-teal-600 hover:bg-teal-50"
+                        >
+                          <MessageCircle size={20} />
+                        </button>
+                      </div>
+                      {/* TEXTAREA ENABLED TO CAPTURE NOTES */}
+                      <textarea
+                        placeholder="Write session notes here..."
+                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl text-xs font-medium outline-none focus:ring-2 focus:ring-teal-400 h-20"
+                        value={sessionNotes[b._id] || ""}
+                        onChange={(e) =>
+                          setSessionNotes({
+                            ...sessionNotes,
+                            [b._id]: e.target.value,
+                          })
+                        }
+                      />
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => navigate(`/video-call/${b._id}`)}
+                          className="flex-[2] bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2"
+                        >
+                          START CALL
+                        </button>
+                        <button
+                          onClick={() => handleEndAndSave(b._id)}
+                          className="bg-teal-600 text-white px-4 py-2 rounded-xl font-bold text-[10px]"
+                        >
+                          COMPLETE SESSION
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )) : (
-                  <div className="text-center py-12">
-                    <p className="text-slate-400 italic">No appointment requests found.</p>
-                  </div>
-                )}
+                  ))}
+
+                {activeTab === "completed" &&
+                  completed.map((b) => (
+                    <div
+                      key={b._id}
+                      className="p-6 border-l-[8px] border-teal-600 bg-slate-50 rounded-2xl space-y-3 text-left"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-black text-slate-800 text-lg italic">
+                            {b.client?.fullName}
+                          </p>
+                          {/* SHOWING DATE AND TIME */}
+                          <div className="flex gap-3 mt-1">
+                             <p className="text-[10px] text-slate-500 font-bold italic flex items-center gap-1">
+                               <Clock size={10}/> {new Date(b.appointmentDate).toLocaleDateString()}
+                             </p>
+                             <p className="text-[10px] text-teal-600 font-bold italic flex items-center gap-1">
+                               {b.appointmentTime}
+                             </p>
+                          </div>
+                        </div>
+                        <span className="bg-teal-100 text-teal-700 text-[9px] font-black px-2 py-1 rounded-md">COMPLETED</span>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => {
+                            setSelectedNote(b.sessionNotes);
+                            setShowNoteModal(true);
+                          }}
+                          className="flex-1 bg-white border border-slate-200 py-2 rounded-xl font-black text-[10px] text-teal-600 flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <ClipboardList size={14} /> VIEW SESSION NOTES
+                        </button>
+
+                        <button
+                          onClick={() => navigate(`/chat/${b._id}`)}
+                          className="flex-1 bg-white border border-slate-200 py-2 rounded-xl font-black text-[10px] text-teal-600 flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <ClipboardList size={14} /> CHAT HISTORY
+                        </button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
 
-          {/* RIGHT: EARNINGS & PROFILE (VIEW/EDIT) */}
-          <div className="space-y-6">
-            <div className="bg-teal-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-teal-100">
-               <p className="text-[10px] font-black opacity-70 uppercase tracking-widest mb-1">Total Revenue</p>
-               <h2 className="text-5xl font-black mb-4">₹{totalEarnings}</h2>
-               <div className="pt-4 border-t border-teal-500 text-[10px] font-bold opacity-80 uppercase">Life-time Earnings</div>
-            </div>
-            
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg">
-                  <UserCog size={20} className="text-teal-600"/> Expert Profile
-                </h3>
-                {!isEditing && (
-                  <button onClick={() => setIsEditing(true)} className="p-2 bg-slate-50 text-slate-400 rounded-xl hover:text-teal-600 transition">
-                    <Edit3 size={18}/>
-                  </button>
-                )}
+          <div className="space-y-8">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center">
+              <div className="relative inline-block mb-4">
+                <img
+                  src={`https://ui-avatars.com/api/?name=${user?.fullName}&background=0D9488&color=fff`}
+                  className="w-20 h-20 rounded-3xl border-4 border-slate-50 shadow-md"
+                  alt="Avatar"
+                />
+                <button className="absolute bottom-0 right-0 p-2 bg-slate-900 text-white rounded-lg">
+                  <Camera size={12} />
+                </button>
               </div>
+              <h4 className="font-black text-slate-800 italic uppercase text-sm">
+                Dr. {user?.fullName}
+              </h4>
+              <p className="text-[10px] text-slate-400 font-black uppercase mb-6 italic">
+                {profile.specialization || "Expert Counselor"}
+              </p>
+              <button
+                onClick={() => setIsEditingProfile(!isEditingProfile)}
+                className="w-full py-3 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-black text-[10px] hover:bg-slate-100 transition italic"
+              >
+                MANAGE PROFILE
+              </button>
 
-              {isEditing ? (
-                /* --- EDIT FORM MODE --- */
-                <form onSubmit={handleProfileUpdate} className="space-y-4 animate-in fade-in zoom-in duration-300">
+              {isEditingProfile && (
+                <form className="mt-4 space-y-3 text-left animate-in fade-in slide-in-from-top-2">
+                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">
+                    Update Counselor Info
+                  </p>
+
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Specialization</label>
-                    <input type="text" value={profile.specialization} onChange={(e) => setProfile({...profile, specialization: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Clinical Psychologist" />
+                    <label className="text-[10px] font-bold text-slate-500 ml-1">
+                      Specialization
+                    </label>
+                    <select
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-teal-400"
+                      value={profile.specialization}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          specialization: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="mental">Mental Health</option>
+                      <option value="career">Career Counseling</option>
+                      <option value="relationship">Relationship</option>
+                    </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Fee (₹)</label>
-                      <input type="number" value={profile.price} onChange={(e) => setProfile({...profile, price: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Exp (Yrs)</label>
-                      <input type="text" value={profile.experience} onChange={(e) => setProfile({...profile, experience: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-teal-500" />
-                    </div>
-                  </div>
+
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Bio</label>
-                    <textarea rows="3" value={profile.bio} onChange={(e) => setProfile({...profile, bio: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none resize-none" placeholder="Write about yourself..."></textarea>
+                    <label className="text-[10px] font-bold text-slate-500 ml-1">
+                      Session Fee (₹)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Price per session"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-teal-400"
+                      value={profile.price}
+                      onChange={(e) =>
+                        setProfile({ ...profile, price: e.target.value })
+                      }
+                    />
                   </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 ml-1">
+                      Professional Bio
+                    </label>
+                    <textarea
+                      placeholder="Describe your experience..."
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold h-24 resize-none outline-none focus:ring-2 focus:ring-teal-400"
+                      value={profile.bio}
+                      onChange={(e) =>
+                        setProfile({ ...profile, bio: e.target.value })
+                      }
+                    />
+                  </div>
+
                   <div className="flex gap-2 pt-2">
-                    <button type="submit" className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-xs hover:bg-teal-600 transition shadow-lg">SAVE</button>
-                    <button type="button" onClick={() => setIsEditing(false)} className="px-6 bg-slate-100 text-slate-500 py-4 rounded-2xl font-black text-xs hover:bg-slate-200 transition">CANCEL</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toast.success("Profile Updated Successfully!");
+                        setIsEditingProfile(false);
+                      }}
+                      className="flex-1 bg-teal-600 text-white py-3 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-teal-100 transition-all hover:bg-teal-700"
+                    >
+                      Save Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingProfile(false)}
+                      className="px-4 bg-slate-100 text-slate-500 py-3 rounded-xl text-[10px] font-black uppercase hover:bg-slate-200"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </form>
-              ) : (
-                /* --- VIEW MODE --- */
-                <div className="space-y-5 animate-in slide-in-from-right-4 duration-500">
-                  <div className="p-5 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Domain</p>
-                    <p className="font-bold text-slate-800 text-sm">{profile.specialization || "Add specialization"}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Fee</p>
-                      <p className="font-bold text-slate-800">₹{profile.price || "0"}</p>
-                    </div>
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Exp</p>
-                      <p className="font-bold text-slate-800">{profile.experience || "0"} Yrs</p>
-                    </div>
-                  </div>
-                  <div className="p-5 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">About Me</p>
-                    <p className="text-xs text-slate-600 leading-relaxed italic">{profile.bio || "No bio added yet."}</p>
-                  </div>
-                  <button 
-                    onClick={() => setIsEditing(true)} 
-                    className="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-2xl text-[10px] font-black uppercase hover:bg-slate-50 transition"
-                  >
-                    Click to Update Professional Details
-                  </button>
-                </div>
               )}
             </div>
-          </div>
 
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+              <h4 className="font-bold text-slate-800 mb-4 text-sm italic uppercase tracking-widest">
+                Earnings
+              </h4>
+              <div className="text-center py-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                <p className="text-4xl font-black text-slate-900 tracking-tighter">
+                  ₹{totalPaid}
+                </p>
+                <p className="text-[9px] text-slate-400 font-black uppercase mt-1 italic">
+                  Total Revenue
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
+
+      {showNoteModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-black italic text-slate-800 uppercase tracking-tighter text-left">Session Record</h3>
+              <button onClick={() => setShowNoteModal(false)} className="text-slate-400 hover:text-red-500">
+                <XCircle size={24} />
+              </button>
+            </div>
+            
+            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 min-h-[150px] text-left">
+              <p className="text-sm font-medium text-slate-600 italic leading-relaxed whitespace-pre-wrap">
+                {selectedNote || "No notes were recorded for this session."}
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowNoteModal(false)}
+              className="w-full mt-6 bg-slate-900 text-white py-4 rounded-2xl font-black italic text-xs uppercase shadow-lg"
+            >
+              CLOSE RECORD
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
