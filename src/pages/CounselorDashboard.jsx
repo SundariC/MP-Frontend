@@ -26,7 +26,7 @@ const CounselorDashboard = () => {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [selectedNote, setSelectedNote] = useState(null); 
+  const [selectedNote, setSelectedNote] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showBellPopup, setShowBellPopup] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -126,14 +126,14 @@ const CounselorDashboard = () => {
       <ToastContainer />
 
       <aside className="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-6 sticky top-0 h-screen">
-        <div className="flex items-center gap-3 mb-10 px-2">
+        {/* <div className="flex items-center gap-3 mb-10 px-2">
           <div className="bg-[#0D9488] p-2 rounded-xl text-white font-black text-xl italic shadow-lg">
             M
           </div>
           <span className="font-black text-slate-800 text-xl tracking-tighter italic">
             MindConnect
           </span>
-        </div>
+        </div> */}
         <nav className="space-y-2 flex-grow text-left">
           <button
             onClick={() => setActiveTab("requests")}
@@ -211,7 +211,7 @@ const CounselorDashboard = () => {
                 </span>
               </h3>
 
-              <div className="space-y-6">
+              <div className="space-y-6 outline-none">
                 {activeTab === "requests" &&
                   requests.map((b) => (
                     <div
@@ -276,17 +276,7 @@ const CounselorDashboard = () => {
                         </button>
                       </div>
                       {/* TEXTAREA ENABLED TO CAPTURE NOTES */}
-                      <textarea
-                        placeholder="Write session notes here..."
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl text-xs font-medium outline-none focus:ring-2 focus:ring-teal-400 h-20"
-                        value={sessionNotes[b._id] || ""}
-                        onChange={(e) =>
-                          setSessionNotes({
-                            ...sessionNotes,
-                            [b._id]: e.target.value,
-                          })
-                        }
-                      />
+
                       <div className="flex gap-3">
                         <button
                           onClick={() => navigate(`/video-call/${b._id}`)}
@@ -295,10 +285,10 @@ const CounselorDashboard = () => {
                           START CALL
                         </button>
                         <button
-                          onClick={() => handleEndAndSave(b._id)}
-                          className="bg-teal-600 text-white px-4 py-2 rounded-xl font-bold text-[10px]"
+                          onClick={() => navigate(`/session-notes/${b._id}`)}
+                          className="flex-1 bg-teal-600 text-white py-3.5 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-teal-100"
                         >
-                          COMPLETE SESSION
+                          Add session notes
                         </button>
                       </div>
                     </div>
@@ -317,15 +307,18 @@ const CounselorDashboard = () => {
                           </p>
                           {/* SHOWING DATE AND TIME */}
                           <div className="flex gap-3 mt-1">
-                             <p className="text-[10px] text-slate-500 font-bold italic flex items-center gap-1">
-                               <Clock size={10}/> {new Date(b.appointmentDate).toLocaleDateString()}
-                             </p>
-                             <p className="text-[10px] text-teal-600 font-bold italic flex items-center gap-1">
-                               {b.appointmentTime}
-                             </p>
+                            <p className="text-[10px] text-slate-500 font-bold italic flex items-center gap-1">
+                              <Clock size={10} />{" "}
+                              {new Date(b.appointmentDate).toLocaleDateString()}
+                            </p>
+                            <p className="text-[10px] text-teal-600 font-bold italic flex items-center gap-1">
+                              {b.appointmentTime}
+                            </p>
                           </div>
                         </div>
-                        <span className="bg-teal-100 text-teal-700 text-[9px] font-black px-2 py-1 rounded-md">COMPLETED</span>
+                        <span className="bg-teal-100 text-teal-700 text-[9px] font-black px-2 py-1 rounded-md">
+                          COMPLETED
+                        </span>
                       </div>
 
                       <div className="flex gap-4">
@@ -476,12 +469,17 @@ const CounselorDashboard = () => {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-black italic text-slate-800 uppercase tracking-tighter text-left">Session Record</h3>
-              <button onClick={() => setShowNoteModal(false)} className="text-slate-400 hover:text-red-500">
+              <h3 className="font-black italic text-slate-800 uppercase tracking-tighter text-left">
+                Session Record
+              </h3>
+              <button
+                onClick={() => setShowNoteModal(false)}
+                className="text-slate-400 hover:text-red-500"
+              >
                 <XCircle size={24} />
               </button>
             </div>
-            
+
             <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 min-h-[150px] text-left">
               <p className="text-sm font-medium text-slate-600 italic leading-relaxed whitespace-pre-wrap">
                 {selectedNote || "No notes were recorded for this session."}

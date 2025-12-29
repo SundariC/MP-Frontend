@@ -16,26 +16,29 @@ const SessionNotes = () => {
     return;
   }
 
-  const sessionData = {
-    bookingId: bookingId,
-    sessionNotes: notes
-  };
-
   try {
-    console.log("Sending session data:", sessionData);
-    
-    // BACKEND URL check pannunga (3000 or 5000)
-    const res = await axios.post('http://localhost:3000/api/session/create', sessionData, {
+    // 1. Session Table-la notes save panrom
+    await axios.post('http://localhost:3000/api/session/create', {
+      bookingId: bookingId,
+      sessionNotes: notes
+    }, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    console.log("Server response:", res.data);
+    // 2. IMPORTANT: Booking status-ah 'COMPLETED' nu mathrom
+    // Ippo thaan Client Dashboard-la logic change aagum
+    await axios.put(`http://localhost:3000/api/bookings/update-status`, {
+      bookingId: bookingId,
+      sessionStatus: "COMPLETED"
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
     toast.success("Notes saved and Session Completed!");
-    navigate('/counselor-dashboard');
+    navigate('/counselor-dashboard'); // Counselor dashboard-ku thirumba pogum
   } catch (err) {
-    // 🔴 ERROR LOGGING
-    console.error("Session Save Error:", err.response?.data || err.message);
-    toast.error(err.response?.data?.message || "Failed to save notes");
+    console.error("Save Error:", err);
+    toast.error("Failed to complete session");
   }
 };
 

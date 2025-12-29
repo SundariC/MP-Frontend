@@ -53,7 +53,7 @@ const Home = () => {
 
   // Logic for Counselor Button (Join as Counselor)
   const handleCounselorAction = () => {
-    navigate('/counselor-signup'); 
+    navigate('/signup'); 
   };
 
   const goToDashboard = () => {
