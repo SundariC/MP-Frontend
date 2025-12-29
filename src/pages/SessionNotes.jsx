@@ -17,17 +17,16 @@ const SessionNotes = () => {
   }
 
   try {
-    // 1. Session Table-la notes save panrom
-    await axios.post('https://mp-backend-1-82km.onrender.com/api/session/create', {
+  
+    await axios.post('http://localhost:3000/api/session/create', {
       bookingId: bookingId,
       sessionNotes: notes
     }, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    // 2. IMPORTANT: Booking status-ah 'COMPLETED' nu mathrom
-    // Ippo thaan Client Dashboard-la logic change aagum
-    await axios.put(`https://mp-backend-1-82km.onrender.com/api/bookings/update-status`, {
+  
+    await axios.put(`http://localhost:3000/api/bookings/update-status`, {
       bookingId: bookingId,
       sessionStatus: "COMPLETED"
     }, {
@@ -35,7 +34,7 @@ const SessionNotes = () => {
     });
 
     toast.success("Notes saved and Session Completed!");
-    navigate('/counselor-dashboard'); // Counselor dashboard-ku thirumba pogum
+    navigate('/counselor-dashboard'); 
   } catch (err) {
     console.error("Save Error:", err);
     toast.error("Failed to complete session");

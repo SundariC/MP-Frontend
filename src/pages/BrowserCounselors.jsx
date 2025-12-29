@@ -13,7 +13,8 @@ const BrowserCounselor = () => {
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
-        const res = await axios.get("https://mp-backend-1-82km.onrender.com/api/auth/counselors");
+        const res = await axios.get("http://localhost:3000/api/auth/counselors");
+        
         const formattedReal = (res.data || []).map((doc) => ({
           _id: doc._id,
           fullName: doc.fullName || "Unnamed Counselor",
@@ -43,6 +44,7 @@ const BrowserCounselor = () => {
 
   return (
     <div className="pt-28 pb-20 px-6 max-w-7xl mx-auto bg-[#F8FAFC] min-h-screen">
+     
       <h1 className="text-4xl font-black text-slate-900 mb-8 text-center">Meet Our Experts</h1>
       
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

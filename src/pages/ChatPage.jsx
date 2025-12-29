@@ -4,9 +4,10 @@ import { Send, ArrowLeft, Video, ShieldCheck } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { io } from "socket.io-client";
-import { toast } from "react-toastify"; // Fixed: Added Import
+import { toast } from "react-toastify"; 
 
-const socket = io("https://mp-backend-1-82km.onrender.com/api", {
+
+const socket = io("http://localhost:5000", {
   transports: ["websocket"],
   upgrade: false,
 });
@@ -26,8 +27,9 @@ const ChatPage = () => {
       fetchChatHistory();
     }
 
-    // Listen for incoming messages
+    
     socket.on("receive_message", (data) => {
+      
       if (data.bookingId === bookingId) {
         setMessages((prev) => [...prev, data]);
       }
@@ -41,7 +43,7 @@ const ChatPage = () => {
  const fetchChatHistory = async () => {
   try {
     
-    const res = await axios.get(`https://mp-backend-1-82km.onrender.com/api/messages/${bookingId}`, {
+    const res = await axios.get(`http://localhost:3000/api/messages/${bookingId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     console.log("History loaded:", res.data); 
@@ -70,14 +72,14 @@ const ChatPage = () => {
 
     try {
       const res = await axios.post(
-        "https://mp-backend-1-82km.onrender.com/api/messages/send",
+        "http://localhost:3000/api/messages/send",
         messageData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      
+
       setMessages((prev) => [...prev, messageData]);
       setNewMessage("");
     } catch (err) {
@@ -105,7 +107,7 @@ const ChatPage = () => {
   
   return (
     <div className="flex flex-col h-screen bg-[#F8FAFC]">
-      {/* ... existing header and messages mapping ... */}
+      
       <header className="bg-white border-b border-slate-100 p-4 flex items-center justify-between sticky top-0 z-10 shadow-sm text-left">
         <div className="flex items-center gap-4">
           <button
