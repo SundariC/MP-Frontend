@@ -6,8 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { io } from "socket.io-client";
 import { toast } from "react-toastify"; // Fixed: Added Import
 
-// Socket connection-ah component-ku veliya oru vaati thaan initialize pannanum
-const socket = io("http://localhost:5000", {
+const socket = io("https://mp-backend-1-82km.onrender.com/api", {
   transports: ["websocket"],
   upgrade: false,
 });
@@ -29,7 +28,6 @@ const ChatPage = () => {
 
     // Listen for incoming messages
     socket.on("receive_message", (data) => {
-      // Message vera room-ku pogaama iruka check
       if (data.bookingId === bookingId) {
         setMessages((prev) => [...prev, data]);
       }
@@ -42,11 +40,11 @@ const ChatPage = () => {
 
  const fetchChatHistory = async () => {
   try {
-    // API endpoint correct-ah check pannunga
-    const res = await axios.get(`http://localhost:3000/api/messages/${bookingId}`, {
+    
+    const res = await axios.get(`https://mp-backend-1-82km.onrender.com/api/messages/${bookingId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log("History loaded:", res.data); // Console-la check pannunga data varutha nu
+    console.log("History loaded:", res.data); 
     setMessages(res.data);
   } catch (err) {
     console.error("Chat history load error", err);
@@ -63,23 +61,23 @@ const ChatPage = () => {
 
     const messageData = {
       bookingId: bookingId,
-      sender: user?._id || user?.id, // Use alternative if _id is missing
+      sender: user?._id || user?.id, 
       text: newMessage,
       role: user?.role,
     };
 
-    console.log("Sending this data to backend:", messageData); // <--- ITHAI ADD PANNINGA
+    console.log("Sending this data to backend:", messageData); 
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/messages/send",
+        "https://mp-backend-1-82km.onrender.com/api/messages/send",
         messageData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // 3. UI-la local-ah update panrom
+      
       setMessages((prev) => [...prev, messageData]);
       setNewMessage("");
     } catch (err) {
@@ -95,7 +93,7 @@ const ChatPage = () => {
 
   socket.on('receive_message', (data) => {
     console.log("New message received via socket:", data);
-    // Inga bookingId match aana mattum thaan state-la update aagum
+    
     if (data.bookingId === bookingId) {
       setMessages((prev) => [...prev, data]);
     }
@@ -104,7 +102,7 @@ const ChatPage = () => {
   return () => socket.off('receive_message');
 }, [bookingId, token]);
 
-  // UI code remains same as you provided...
+  
   return (
     <div className="flex flex-col h-screen bg-[#F8FAFC]">
       {/* ... existing header and messages mapping ... */}
@@ -135,7 +133,7 @@ const ChatPage = () => {
 
       <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50/50">
         {messages.map((msg, index) => {
-          // Debug panna logic
+         
           const isMe = msg.sender === user?._id || msg.sender === user?.id;
 
           return (

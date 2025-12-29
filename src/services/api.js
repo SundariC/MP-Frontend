@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "https://mp-backend-1-82km.onrender.com/api",
 });
 
-// Request Interceptor: Ovvoru call-kum automatic-ah token anuppum
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {

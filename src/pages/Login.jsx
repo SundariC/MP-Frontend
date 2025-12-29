@@ -15,13 +15,11 @@ const Login = () => {
     try {
       const res = await API.post("/auth/login", { email, password });
 
-      // ✅ Token and User data-ah localStorage-la save pannunga
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       toast.success(`Welcome back, ${res.data.user.fullName}!`);
 
-      // ✅ Role-ku yethapadi redirect
       if (res.data.user.role === "client") {
         navigate("/client-dashboard");
       } else {

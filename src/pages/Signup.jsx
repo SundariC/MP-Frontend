@@ -7,12 +7,12 @@ import { toast, ToastContainer } from "react-toastify";
 const Signup = () => {
   const [role, setRole] = useState("client");
   const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState(""); // Default-ah client
+  const [password, setPassword] = useState(""); 
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    specialization: "", // Counselor-ku mattum
+    specialization: "", 
   });
 
   const navigate = useNavigate();
@@ -33,13 +33,10 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      // Backend-la enum values irukum, athunala simple-ah empty array anupalam (if not required)
-      // Illana backend-la namba enna values kuduthoamo athaiye anupanum.
       const dataToSend = {
         ...formData,
         role,
         price: role === "counselor" ? 500 : 0,
-        // Backend validation error-ah thavirkka:
         services: role === "counselor" ? [] : [],
         availability: role === "counselor" ? [] : [],
       };
@@ -121,7 +118,6 @@ const Signup = () => {
             </button>
           </div>
 
-          {/* Counselor-ku mattum Specialization field kaatum */}
           {role === "counselor" && (
             <input
               type="text"

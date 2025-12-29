@@ -8,20 +8,20 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ AuthContext import
+import { useAuth } from "../context/AuthContext"; 
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showSignupDropdown, setShowSignupDropdown] = useState(false);
+ 
 
-  // ✅ Context-la irundhu user and logout edukirom
+  
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    logout(); // ✅ Global-ah logout aagum and redirect aagum
+    logout(); 
   };
 
   const handleScroll = (sectionId) => {

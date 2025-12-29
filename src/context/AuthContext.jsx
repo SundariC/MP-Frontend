@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    window.location.href = "/login"; // Logout panna login page-ku poidum
+    window.location.href = "/login"; 
   };
 
   return (
