@@ -44,7 +44,7 @@ const CounselorDashboard = () => {
   const fetchBookings = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/bookings/my-bookings",
+        "https://mp-backend-1-82km.onrender.com/api/bookings/my-bookings",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -58,7 +58,7 @@ const CounselorDashboard = () => {
   const fetchUserSessions = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/bookings/my-bookings",
+        "https://mp-backend-1-82km.onrender.com/api/bookings/my-bookings",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -80,7 +80,7 @@ const CounselorDashboard = () => {
     try {
       const notes = sessionNotes[bookingId] || "";
       await axios.put(
-        "http://localhost:3000/api/bookings/update-status",
+        "https://mp-backend-1-82km.onrender.com/api/bookings/update-status",
         {
           bookingId,
           sessionStatus: "COMPLETED",
@@ -98,7 +98,7 @@ const CounselorDashboard = () => {
   const updateStatus = async (bookingId, status) => {
     try {
       await axios.put(
-        "http://localhost:3000/api/bookings/update-status",
+        "https://mp-backend-1-82km.onrender.com/api/bookings/update-status",
         { bookingId, sessionStatus: status },
         { headers: { Authorization: `Bearer ${token}` } }
       );

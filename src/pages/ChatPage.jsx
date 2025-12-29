@@ -43,7 +43,7 @@ const ChatPage = () => {
  const fetchChatHistory = async () => {
   try {
     
-    const res = await axios.get(`http://localhost:3000/api/messages/${bookingId}`, {
+    const res = await axios.get(`https://mp-backend-1-82km.onrender.com/api/messages/${bookingId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     console.log("History loaded:", res.data); 
@@ -72,7 +72,7 @@ const ChatPage = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/messages/send",
+        "https://mp-backend-1-82km.onrender.com/api/messages/send",
         messageData,
         {
           headers: { Authorization: `Bearer ${token}` },

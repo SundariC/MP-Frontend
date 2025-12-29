@@ -18,7 +18,7 @@ const SessionNotes = () => {
 
   try {
   
-    await axios.post('http://localhost:3000/api/session/create', {
+    await axios.post('https://mp-backend-1-82km.onrender.com/api/session/create', {
       bookingId: bookingId,
       sessionNotes: notes
     }, {
@@ -26,7 +26,7 @@ const SessionNotes = () => {
     });
 
   
-    await axios.put(`http://localhost:3000/api/bookings/update-status`, {
+    await axios.put(`https://mp-backend-1-82km.onrender.com/api/bookings/update-status`, {
       bookingId: bookingId,
       sessionStatus: "COMPLETED"
     }, {

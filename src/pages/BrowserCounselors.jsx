@@ -13,7 +13,7 @@ const BrowserCounselor = () => {
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/auth/counselors");
+        const res = await axios.get("https://mp-backend-1-82km.onrender.com/api/auth/counselors");
         
         const formattedReal = (res.data || []).map((doc) => ({
           _id: doc._id,
