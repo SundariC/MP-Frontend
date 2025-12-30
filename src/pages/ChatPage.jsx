@@ -4,13 +4,13 @@ import { Send, ArrowLeft } from "lucide-react"; // Video, ShieldCheck removed as
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { io } from "socket.io-client";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 // 1. FIXED: Added transports to fix repeated connection errors
 // IMPORTANT: Replace the URL with your Render Backend URL
 const socket = io("https://mp-backend-1-82km.onrender.com", {
   transports: ["websocket", "polling"],
-  withCredentials: true
+  withCredentials: true,
 });
 
 const ChatPage = () => {
@@ -33,7 +33,9 @@ const ChatPage = () => {
       if (data.bookingId === bookingId) {
         setMessages((prev) => {
           // Check if message already exists to avoid double rendering
-          const exists = prev.find(m => m.timestamp === data.timestamp && m.text === data.text);
+          const exists = prev.find(
+            (m) => m.timestamp === data.timestamp && m.text === data.text
+          );
           return exists ? prev : [...prev, data];
         });
       }
@@ -46,9 +48,12 @@ const ChatPage = () => {
 
   const fetchChatHistory = async () => {
     try {
-      const res = await axios.get(`https://mp-backend-1-82km.onrender.com/api/messages/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.get(
+        `https://mp-backend-1-82km.onrender.com/api/messages/${bookingId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setMessages(res.data);
     } catch (err) {
       console.error("Chat history load error", err);
@@ -63,26 +68,29 @@ const ChatPage = () => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    // 3. FIXED: Added fallback to ensure sender and role are NEVER undefined
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = user?._id || user?.id || storedUser?._id || storedUser?.id;
+    const userRole = user?.role || storedUser?.role;
+
     const messageData = {
       bookingId: bookingId,
-      sender: user?._id || user?.id || localStorage.getItem("userId"), 
+      sender: userId,
       text: newMessage,
-      role: user?.role || localStorage.getItem("userRole"),
-      timestamp: new Date().toISOString()
+      role: userRole,
+      timestamp: new Date().toISOString(),
     };
 
-    // Validation check before sending to prevent 500 error
-    if(!messageData.sender || !messageData.role) {
-      toast.error("Session expired. Please login again.");
+    console.log("Final attempt data:", messageData);
+
+    if (!messageData.sender || !messageData.role) {
+      console.error("User data missing in both context and localStorage");
+      toast.error("User session error. Please re-login.");
       return;
     }
 
     try {
-      // Send via Socket for real-time update
       socket.emit("send_message", messageData);
 
-      // Save to Database
       await axios.post(
         "https://mp-backend-1-82km.onrender.com/api/messages/send",
         messageData,
@@ -94,8 +102,8 @@ const ChatPage = () => {
       setMessages((prev) => [...prev, messageData]);
       setNewMessage("");
     } catch (err) {
-      console.error("Message send failed", err);
-      toast.error("Message not saved to database.");
+      console.error("Server 500 Error:", err.response?.data);
+      toast.error("Server rejected the message. Check backend logs.");
     }
   };
 
