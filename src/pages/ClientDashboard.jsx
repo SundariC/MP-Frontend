@@ -26,7 +26,22 @@ const ClientDashboard = () => {
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showBellPopup, setShowBellPopup] = useState(false);
-  const [activeTab, setActiveTab] = useState("requests"); // Default to requests like counselor
+  const [activeTab, setActiveTab] = useState("requests");
+
+  // --- NAME & ROLE PERSISTENCE LOGIC START ---
+  // Refresh aanaalum name pogama irukka intha logic
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const displayName = user?.fullName || storedUser?.fullName || "Client";
+  const firstName = displayName.split(" ")[0];
+
+  // Role check: Counselor role-la client dashboard kulla vantha redirect pannanum
+  useEffect(() => {
+    const currentRole = user?.role || storedUser?.role;
+    if (currentRole === "counselor") {
+      navigate("/counselor-dashboard"); // Counselor-ah iruntha redirect
+    }
+  }, [user, navigate]);
+  // --- NAME & ROLE PERSISTENCE LOGIC END ---
   
   const fetchUserSessions = async () => {
     try {
@@ -59,7 +74,6 @@ const ClientDashboard = () => {
     }
   };
 
-  // Logic to separate bookings (Counselor Model)
   const requests = bookings.filter(b => b.sessionStatus === "UPCOMING" && !b.videoLink);
   const activeSessions = bookings.filter(b => b.sessionStatus === "UPCOMING" && b.videoLink);
   const completed = bookings.filter((b) => b.sessionStatus === "COMPLETED");
@@ -72,7 +86,6 @@ const ClientDashboard = () => {
     <div className="flex min-h-screen bg-[#F8FAFC]">
       <ToastContainer />
 
-      {/* SIDEBAR - EXACTLY LIKE COUNSELOR */}
       <aside className="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-6 sticky top-0 h-screen">
         <nav className="space-y-2 flex-grow text-left">
           <button
@@ -102,7 +115,8 @@ const ClientDashboard = () => {
       <main className="flex-grow p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="text-left">
-            <h1 className="text-3xl font-black text-slate-900 leading-tight italic">Hello, {user?.fullName?.split(" ")[0]}</h1>
+            {/* UPDATED: Displays firstName from localStorage if user state is null */}
+            <h1 className="text-3xl font-black text-slate-900 leading-tight italic">Hello, {firstName}</h1>
             <p className="text-slate-500 font-medium italic text-sm text-left">Client Dashboard</p>
           </div>
           <button onClick={() => setShowBellPopup(!showBellPopup)} className="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-400 hover:text-teal-600 relative">
@@ -122,7 +136,6 @@ const ClientDashboard = () => {
               </h3>
 
               <div className="space-y-6 outline-none">
-                {/* REQUESTS TAB (WAITING FOR COUNSELOR) */}
                 {activeTab === "requests" && requests.map((b) => (
                   <div key={b._id} className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between outline-none">
                     <div className="flex items-center gap-4 text-left">
@@ -136,7 +149,6 @@ const ClientDashboard = () => {
                   </div>
                 ))}
 
-                {/* ACTIVE TAB (JOIN CALL/CHAT) */}
                 {activeTab === "active" && activeSessions.map((b) => (
                   <div key={b._id} className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-4">
                     <div className="flex items-center justify-between">
@@ -161,7 +173,6 @@ const ClientDashboard = () => {
                   </div>
                 ))}
 
-                {/* RECORDS TAB (SAME AS COUNSELOR) */}
                 {activeTab === "completed" && completed.map((b) => (
                   <div key={b._id} className="p-6 border-l-[8px] border-teal-600 bg-slate-50 rounded-2xl space-y-3 text-left">
                     <div className="flex justify-between items-start">
@@ -181,14 +192,14 @@ const ClientDashboard = () => {
             </div>
           </div>
 
-          {/* RIGHT SIDEBAR STATS */}
           <div className="space-y-8">
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center">
               <div className="relative inline-block mb-4">
-                <img src={`https://ui-avatars.com/api/?name=${user?.fullName}&background=0D9488&color=fff`} className="w-20 h-20 rounded-3xl border-4 border-slate-50 shadow-md" alt="Avatar"/>
+                {/* UPDATED: Displays correct Avatar using displayName */}
+                <img src={`https://ui-avatars.com/api/?name=${displayName}&background=0D9488&color=fff`} className="w-20 h-20 rounded-3xl border-4 border-slate-50 shadow-md" alt="Avatar"/>
                 <button className="absolute bottom-0 right-0 p-2 bg-slate-900 text-white rounded-lg"><Camera size={12} /></button>
               </div>
-              <h4 className="font-black text-slate-800 italic uppercase text-sm">{user?.fullName}</h4>
+              <h4 className="font-black text-slate-800 italic uppercase text-sm">{displayName}</h4>
               <p className="text-[10px] text-slate-400 font-black uppercase mb-6 italic tracking-widest">Client Account</p>
               <button onClick={() => navigate("/browsercounselors")} className="w-full py-4 bg-teal-600 text-white rounded-2xl font-black text-[10px] hover:bg-teal-700 transition-all shadow-lg italic uppercase flex items-center justify-center gap-2"><Search size={14}/> Book New Session</button>
             </div>
@@ -204,7 +215,6 @@ const ClientDashboard = () => {
         </div>
       </main>
 
-      {/* MODAL FOR SESSION NOTES - EXACTLY LIKE COUNSELOR */}
       {showNoteModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
