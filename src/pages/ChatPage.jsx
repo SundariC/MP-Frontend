@@ -7,8 +7,8 @@ import { io } from "socket.io-client";
 import { toast } from "react-toastify"; 
 
 
-const socket = io("http://localhost:5000", {
-  transports: ["websocket"],
+const socket = io("https://mp-backend-1-82km.onrender.com/", {
+  transports: ["websocket", "polling"],
   upgrade: false,
 });
 
