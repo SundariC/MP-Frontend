@@ -19,7 +19,7 @@ const Login = () => {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      login(JSON.stringify(res.data.user), res.data.token)
+      login(res.data.user, res.data.token);
 
       toast.success(`Welcome back, ${res.data.user.fullName}!`);
 

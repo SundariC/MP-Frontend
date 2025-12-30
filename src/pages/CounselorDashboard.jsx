@@ -33,9 +33,6 @@ const CounselorDashboard = () => {
   const [activeTab, setActiveTab] = useState("requests");
   const [sessionNotes, setSessionNotes] = useState({});
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-const displayName = user?.fullName || storedUser?.fullName || "Counselor";
-
   const [profile, setProfile] = useState({
     specialization: user?.specialization || "",
     price: 500,
@@ -181,7 +178,7 @@ const displayName = user?.fullName || storedUser?.fullName || "Counselor";
         <header className="flex justify-between items-center mb-10">
           <div className="text-left">
             <h1 className="text-3xl font-black text-slate-900 leading-tight italic">
-              Dr. {displayName.split(" ")[0]}
+              Dr. {user?.fullName?.split(" ")[0]}
             </h1>
             <p className="text-slate-500 font-medium italic text-sm text-left">
               Counselor Dashboard
