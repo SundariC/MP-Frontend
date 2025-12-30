@@ -16,10 +16,11 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await API.post("/auth/login", { email, password });
-
+      
+      if(res.data && res.data.token) {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      // login(res.data.user, res.data.token);
+      login(res.data.user, res.data.token);
 
       toast.success(`Welcome back, ${res.data.user.fullName}!`);
 
@@ -27,7 +28,8 @@ const Login = () => {
         navigate("/client-dashboard");
       } else {
         navigate("/counselor-dashboard");
-      }                                     
+      }  
+    }                                   
     } catch (err) {
       toast.error(err.response?.data?.message || "Login Failed!");
     }
