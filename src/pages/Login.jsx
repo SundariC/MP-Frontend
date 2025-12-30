@@ -12,26 +12,41 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await API.post("/auth/login", { email, password });
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await API.post("/auth/login", { email, password });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      login(res.data.user, res.data.token);
+  //     localStorage.setItem("token", res.data.token);
+  //     localStorage.setItem("user", JSON.stringify(res.data.user));
+  //     // login(res.data.user, res.data.token);
 
-      toast.success(`Welcome back, ${res.data.user.fullName}!`);
+  //     toast.success(`Welcome back, ${res.data.user.fullName}!`);
 
-      if (res.data.user.role === "client") {
-        navigate("/client-dashboard");
-      } else {
-        navigate("/counselor-dashboard");
-      }                                     
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Login Failed!");
-    }
-  };
+  //     if (res.data.user.role === "client") {
+  //       navigate("/client-dashboard");
+  //     } else {
+  //       navigate("/counselor-dashboard");
+  //     }                                     
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Login Failed!");
+  //   }
+  // };
+
+  const handleLogin = async () => {
+  try {
+    const res = await loginAPI({
+      email: email,
+      password: password,
+    });
+
+    localStorage.setItem("token", res.data.token);
+    console.log("Login success", res.data);
+  } catch (err) {
+    console.log("Login error:", err.response?.data);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">

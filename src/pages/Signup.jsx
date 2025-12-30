@@ -42,8 +42,8 @@ const Signup = () => {
       };
 
       const res = await API.post("/auth/register", dataToSend);
-      toast.success("Counselor Registered!");
-      navigate("/login");
+      const userType = dataToSend.role === "client" ? "Client" : "Counselor";
+    toast.success(`${userType} Registered Successfully!`);
     } catch (err) {
       console.error("Signup Error Details:", err.response?.data);
       toast.error(err.response?.data?.message || "Registration Failed!");
