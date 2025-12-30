@@ -17,7 +17,7 @@ const Login = () => {
     try {
       const res = await API.post("/auth/login", { email, password });
       
-      if(res.data && res.data.token) {
+      if (res.data && res.data.token) {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       login(res.data.user, res.data.token);
@@ -34,6 +34,44 @@ const Login = () => {
       toast.error(err.response?.data?.message || "Login Failed!");
     }
   };
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await API.post("/auth/login", { email, password });
+      
+  //     // Console-la check panni paarunga enna data varuthu nu
+  //     console.log("Backend Data:", res.data);
+
+  //     if (res.data && res.data.token) {
+  //       const token = res.data.token;
+        
+  //       // Backend 'user' object-ah anupala naalum error varama irukka:
+  //       const userData = res.data.user || { 
+  //         role: res.data.role, 
+  //         fullName: "User", // Default name
+  //         id: res.data.id 
+  //       };
+
+  //       localStorage.setItem("token", token);
+  //       localStorage.setItem("user", JSON.stringify(userData));
+        
+  //       // Context login call
+  //       login(userData, token);
+
+  //       toast.success(`Welcome back!`);
+
+  //       // Redirect logic using the safer variable
+  //       if (userData.role === "client") {
+  //         navigate("/client-dashboard");
+  //       } else {
+  //         navigate("/counselor-dashboard");
+  //       }   
+  //     }                                     
+  //   } catch (err) {
+  //     console.error("Login catch error:", err);
+  //     toast.error(err.response?.data?.message || "Login Failed!");
+  //   }
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">

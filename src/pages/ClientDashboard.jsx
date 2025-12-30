@@ -31,7 +31,7 @@ const ClientDashboard = () => {
   const fetchUserSessions = async () => {
     try {
       const res = await axios.get(
-        "https://mp-backend-1-82km.onrender.com/api/bookings/my-bookings",
+        "http://localhost:3000/api/bookings/my-bookings",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBookings(res.data);
@@ -47,7 +47,7 @@ const ClientDashboard = () => {
     const endSession = async (bookingId) => {
     try {
       await axios.put(
-        `https://mp-backend-1-82km.onrender.com/api/bookings/end-session/${bookingId}`,
+        `http://localhost:3000/api/bookings/end-session/${bookingId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
