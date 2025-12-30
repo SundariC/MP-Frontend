@@ -151,13 +151,14 @@ const ClientDashboard = () => {
                     </div>
                     <div className="flex gap-3">
                       <button onClick={() => navigate(`/video-call/${b._id}`)} className="flex-[2] bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 italic">START VIDEO CALL</button>
-                    </div>
-                    <button
+                      <button
                         onClick={() => endSession(b._id)}
                         className="flex-1 bg-red-500 text-white py-3 rounded-xl font-black text-[10px] uppercase hover:bg-red-600"
                       >
                         END SESSION
                       </button>
+                    </div>
+                    
                   </div>
                 ))}
 
