@@ -40,13 +40,13 @@ const Login = () => {
   //   try {
   //     const res = await API.post("/auth/login", { email, password });
       
-  //     // Console-la check panni paarunga enna data varuthu nu
+  
   //     console.log("Backend Data:", res.data);
 
   //     if (res.data && res.data.token) {
   //       const token = res.data.token;
         
-  //       // Backend 'user' object-ah anupala naalum error varama irukka:
+   
   //       const userData = res.data.user || { 
   //         role: res.data.role, 
   //         fullName: "User", // Default name

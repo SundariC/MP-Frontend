@@ -20,7 +20,7 @@ const Signup = () => {
   //   const handleSignup = async (e) => {
   //     e.preventDefault();
   //     try {
-  //       // Role-ah formData kooda add pandrom
+  
   //       const dataToSend = { ...formData, role };
 
   //       const res = await API.post('/auth/register', dataToSend);

@@ -7,7 +7,6 @@ import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 
 // 1. FIXED: Added transports to fix repeated connection errors
-// IMPORTANT: Replace the URL with your Render Backend URL
 const socket = io("https://mp-backend-1-82km.onrender.com", {
   transports: ["websocket", "polling"],
   withCredentials: true,

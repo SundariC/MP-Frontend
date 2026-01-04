@@ -25,7 +25,7 @@ const Home = () => {
   const handleScroll = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offset = 80; // Navbar height-kaaga konjam gap
+      const offset = 80;  
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;

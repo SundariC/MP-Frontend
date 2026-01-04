@@ -9,7 +9,7 @@ const CheckoutPage = () => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const counselor = location.state?.counselor; // Selected counselor data
+  const counselor = location.state?.counselor; 
   
   const [bookingData, setBookingData] = useState({
     appointmentDate: '',
@@ -22,7 +22,7 @@ const CheckoutPage = () => {
   }
 
   try {
-    // 1. First, Razorpay Order Create panrom
+    // 1. Create Order on Backend
     const orderRes = await API.post('/bookings/create-order', {
       amount: counselor.price 
     });
@@ -31,7 +31,7 @@ const CheckoutPage = () => {
 
     // 2. Razorpay Options
     const options = {
-      key: orderRes.data.key, // Backend-la irunthu vara key
+      key: orderRes.data.key,
       amount: amount,
       currency: currency,
       name: "MindEase Counseling",
@@ -39,15 +39,14 @@ const CheckoutPage = () => {
       order_id: order_id,
       handler: async function (response) {
         try {
-          // 3. Payment success aana udanae, namba DB-la booking create panrom
-          // BACKEND-la neenga ezhuthuna 'createBooking' function kooda exact-ah match aagum
+          // 3. Verify Payment & Create Booking Record on Backend
           await API.post('/bookings/create', {
-            counselor: counselor._id, // Backend expects 'counselor'
+            counselor: counselor._id,  
             appointmentDate: bookingData.appointmentDate,
             timeSlot: bookingData.timeSlot,
             amount: counselor.price,
-            sessionType: "mental", // Unga Model-la enum irukira session type
-            paymentId: response.razorpay_payment_id // Payment proof
+            sessionType: "mental",  
+            paymentId: response.razorpay_payment_id  
           });
 
           toast.success("Payment Successful & Booking Confirmed!");
@@ -60,7 +59,7 @@ const CheckoutPage = () => {
         name: user?.fullName,
         email: user?.email,
       },
-      theme: { color: "#0D9488" }, // Teal color
+      theme: { color: "#0D9488" },  
     };
 
     const rzp1 = new window.Razorpay(options);
