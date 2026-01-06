@@ -13,28 +13,35 @@ const Login = () => {
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await API.post("/auth/login", { email, password });
-      
-      if (res.data && res.data.token) {
+  e.preventDefault();
+  try {
+    const res = await API.post("/auth/login", { email, password });
+    
+    if (res.data && res.data.token) {
+      // Step 1: Token and User-ah save pannanum
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      login(res.data.user, res.data.token);
+      
+      // MUKKIYAM: res.data.user backend-la irunthu varutha nu confirm panni save pannunga
+      const userData = res.data.user;
+      localStorage.setItem("user", JSON.stringify(userData));
 
-      toast.success(`Welcome back, ${res.data.user.fullName}!`);
+      // Step 2: AuthContext update pannanum
+      login(userData, res.data.token); 
 
-      if (res.data.user.role === "client") {
+      toast.success(`Welcome back, ${userData.fullName}!`);
+
+      // Step 3: Role-based navigation
+      if (userData.role === "client") {
         navigate("/client-dashboard");
       } else {
         navigate("/counselor-dashboard");
-      }  
-    }                                   
-    } catch (err) {
-      console.log(err);
-      toast.error(err.response?.data?.message || "Login Failed!");
+      }
     }
-  };
+  } catch (err) {
+    console.error("Login Error:", err.response?.data);
+    toast.error(err.response?.data?.message || "Login Failed!");
+  }
+};
   // const handleLogin = async (e) => {
   //   e.preventDefault();
   //   try {
