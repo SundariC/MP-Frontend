@@ -11,69 +11,43 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    password: "",
     specialization: "", 
   });
 
   const navigate = useNavigate();
 
-  //   const handleSignup = async (e) => {
-  //     e.preventDefault();
-  //     try {
-  
-  //       const dataToSend = { ...formData, role };
-
-  //       const res = await API.post('/auth/register', dataToSend);
-  //       toast.success("Registration Successful! Please Login.");
-  //       navigate('/login');
-  //     } catch (err) {
-  //       toast.error(err.response?.data?.message || "Registration Failed!");
-  //     }
-  //   };
-  // const handleSignup = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const dataToSend = {
-  //       ...formData,
-  //       role,
-  //       price: role === "counselor" ? 500 : 0,
-  //       services: role === "counselor" ? [] : [],
-  //       availability: role === "counselor" ? [] : [],
-  //     };
-
-  //     const res = await API.post("/auth/register", dataToSend);
-  //     const userType = dataToSend.role === "client" ? "Client" : "Counselor";
-  //   toast.success(`${userType} Registered Successfully!`);
-  //   } catch (err) {
-  //     console.error("Signup Error Details:", err.response?.data);
-  //     toast.error(err.response?.data?.message || "Registration Failed!");
-  //   }
-  // };
   const handleSignup = async (e) => {
-  e.preventDefault();
-  try {
-    const dataToSend = {
-      fullName: formData.fullName || formData.name, // backend fullName-ah ethirpaakkuthu
-      email: formData.email,
-      password: formData.password,
-      role: role, // 'client' or 'counselor'
-      specialization: formData.specialization || "",
-      price: role === "counselor" ? (formData.price || 500) : 0,
-      services: [],
-      availability: []
-    };
+    e.preventDefault();
 
-    const res = await API.post("/auth/register", dataToSend);
-    const userType = role === "client" ? "Client" : "Counselor";
-    toast.success(`${userType} Registered Successfully!`);
-    
-    // Success aana udane login page-ku poga:
-    navigate("/login"); 
-  } catch (err) {
-    console.error("Signup Error Details:", err.response?.data);
-    toast.error(err.response?.data?.message || "Registration Failed!");
-  }
-};
+    // FIXED: Using 'password' state directly since it's not in formData
+    if (!password) {
+      toast.error("Please enter a password");
+      return;
+    }
+
+    try {
+      const dataToSend = {
+        fullName: formData.fullName, 
+        email: formData.email,
+        password: password, // FIXED: Now sending the correct password state
+        role: role,
+        // Counselor-ku mattum price and specialization, Client-ku default 0/empty
+        price: role === "counselor" ? 500 : 0,
+        specialization: role === "counselor" ? formData.specialization : "",
+        services: [],
+        availability: []
+      };
+
+      console.log("Sending to Backend:", dataToSend);
+
+      const res = await API.post("/auth/register", dataToSend);
+      toast.success("Registered Successfully!");
+      navigate("/login");
+    } catch (err) {
+      console.error("Signup Error:", err.response?.data);
+      toast.error(err.response?.data?.message || "Registration Failed!");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">
@@ -86,6 +60,7 @@ const Signup = () => {
         {/* Role Selection Toggle */}
         <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
           <button
+            type="button" // Added type button to prevent form trigger
             onClick={() => setRole("client")}
             className={`flex-1 py-2 rounded-lg font-bold transition ${
               role === "client"
@@ -96,6 +71,7 @@ const Signup = () => {
             Client
           </button>
           <button
+            type="button" // Added type button to prevent form trigger
             onClick={() => setRole("counselor")}
             className={`flex-1 py-2 rounded-lg font-bold transition ${
               role === "counselor"
@@ -129,20 +105,22 @@ const Signup = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-teal-400"
+              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-teal-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-slate-400 hover:text-teal-600"
+              className="absolute right-4 top-4 text-slate-400 hover:text-teal-600"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
+          {/* Counselor specialization only */}
           {role === "counselor" && (
             <input
               type="text"
@@ -172,6 +150,7 @@ const Signup = () => {
           </span>
         </p>
       </div>
+      <ToastContainer />
     </div>
   );
 };
