@@ -1,16 +1,27 @@
-# React + Vite
+# Online counseling Support Platform - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A professional MERN stack application designed to provide real-time mental health counseling and support. This platform connects clients with professional counselors through a secure and intuitive interface.
 
-Currently, two official plugins are available:
+## 🚀 Live Links
+- **Frontend URL:** [https://mp-frontend-lemon.vercel.app/](https://mp-frontend-lemon.vercel.app/)
+- **Backend URL:** [https://mp-backend-1-82km.onrender.com/](https://mp-backend-1-82km.onrender.com/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Key Features
+- **Role-Based Authentication:** Secure Login and Signup for both Clients and Counselors using JWT.
+- **Real-time Chat:** Instant messaging functionality powered by Socket.io for seamless interaction.
+- **Dynamic Dashboards:** - **Client:** Book sessions, view counselor profiles, and access chat history.
+  - **Counselor:** Manage appointments and connect with assigned clients.
+- **Responsive UI:** Modern, clean design built with Tailwind CSS for all screen sizes.
 
-## React Compiler
+## 🛠️ Tech Stack
+- **Frontend Library:** React.js (Vite)
+- **Styling:** Tailwind CSS
+- **State Management:** React Context API
+- **Real-time Communication:** Socket.io-client
+- **API Requests:** Axios
+- **Icons:** Lucide-React
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ⚙️ Installation & Setup
+1. **Clone the repository:**
+   ```bash
+   git clone [your-github-repo-link]

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Send, ArrowLeft } from "lucide-react"; // Video, ShieldCheck removed as unused
+import { Send, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { io } from "socket.io-client";
@@ -28,10 +28,8 @@ const ChatPage = () => {
     }
 
     socket.on("receive_message", (data) => {
-      // Logic to prevent duplicate messages if sender is same
       if (data.bookingId === bookingId) {
         setMessages((prev) => {
-          // Check if message already exists to avoid double rendering
           const exists = prev.find(
             (m) => m.timestamp === data.timestamp && m.text === data.text
           );
@@ -67,29 +65,32 @@ const ChatPage = () => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
+    // 3. FIXED: Reliable User Data extraction to prevent 'undefined'
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = user?._id || user?.id || storedUser?._id || storedUser?.id;
-    const userRole = user?.role || storedUser?.role;
+    
+    // Check both 'id' and '_id' for compatibility
+    const currentUserId = user?._id || user?.id || storedUser?._id || storedUser?.id;
+    const currentUserRole = user?.role || storedUser?.role;
 
-    const messageData = {
-      bookingId: bookingId,
-      sender: userId,
-      text: newMessage,
-      role: userRole,
-      timestamp: new Date().toISOString(),
-    };
-
-    console.log("Final attempt data:", messageData);
-
-    if (!messageData.sender || !messageData.role) {
-      console.error("User data missing in both context and localStorage");
-      toast.error("User session error. Please re-login.");
+    if (!currentUserId || !currentUserRole) {
+      console.error("User data missing error");
+      toast.error("User session missing. Please re-login.");
       return;
     }
 
+    const messageData = {
+      bookingId: bookingId,
+      sender: currentUserId,
+      text: newMessage,
+      role: currentUserRole,
+      timestamp: new Date().toISOString(),
+    };
+
     try {
+      // 4. FIXED: Emit socket first for real-time feel
       socket.emit("send_message", messageData);
 
+      // 5. Save to DB via Axios
       await axios.post(
         "https://mp-backend-1-82km.onrender.com/api/messages/send",
         messageData,
@@ -101,14 +102,13 @@ const ChatPage = () => {
       setMessages((prev) => [...prev, messageData]);
       setNewMessage("");
     } catch (err) {
-      console.error("Server 500 Error:", err.response?.data);
-      toast.error("Server rejected the message. Check backend logs.");
+      console.error("Send Error:", err);
+      toast.error("Failed to send message.");
     }
   };
 
   return (
     <div className="flex flex-col h-screen bg-[#F8FAFC]">
-      {/* Header section - Keeping your design exactly as provided */}
       <header className="bg-white border-b border-slate-100 p-4 flex items-center justify-between sticky top-0 z-10 shadow-sm text-left">
         <div className="flex items-center gap-4">
           <button
@@ -119,7 +119,8 @@ const ChatPage = () => {
           </button>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white font-black italic shadow-md shadow-teal-100 text-lg">
-              {user?.role?.charAt(0) || "U"}
+               {/* Use reliable role extraction here too */}
+              {(user?.role || JSON.parse(localStorage.getItem("user") || "{}")?.role)?.charAt(0) || "U"}
             </div>
             <div>
               <h2 className="font-black text-slate-800 italic leading-tight uppercase text-xs tracking-widest text-left">
@@ -134,10 +135,12 @@ const ChatPage = () => {
         </div>
       </header>
 
-      {/* Messages area - Keeping your exact design */}
       <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50/50">
         {messages.map((msg, index) => {
-          const isMe = msg.sender === user?._id || msg.sender === user?.id;
+          // 6. FIXED: logic for 'isMe' to use currentUserId variable
+          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+          const currentId = user?._id || user?.id || storedUser?._id || storedUser?.id;
+          const isMe = msg.sender === currentId;
 
           return (
             <div
@@ -160,7 +163,6 @@ const ChatPage = () => {
         <div ref={scrollRef} />
       </div>
 
-      {/* Input form - Keeping your exact design */}
       <form
         onSubmit={handleSendMessage}
         className="p-6 bg-white border-t border-slate-100 flex items-center gap-3"

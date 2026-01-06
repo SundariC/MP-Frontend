@@ -30,25 +30,50 @@ const Signup = () => {
   //       toast.error(err.response?.data?.message || "Registration Failed!");
   //     }
   //   };
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    try {
-      const dataToSend = {
-        ...formData,
-        role,
-        price: role === "counselor" ? 500 : 0,
-        services: role === "counselor" ? [] : [],
-        availability: role === "counselor" ? [] : [],
-      };
+  // const handleSignup = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const dataToSend = {
+  //       ...formData,
+  //       role,
+  //       price: role === "counselor" ? 500 : 0,
+  //       services: role === "counselor" ? [] : [],
+  //       availability: role === "counselor" ? [] : [],
+  //     };
 
-      const res = await API.post("/auth/register", dataToSend);
-      const userType = dataToSend.role === "client" ? "Client" : "Counselor";
+  //     const res = await API.post("/auth/register", dataToSend);
+  //     const userType = dataToSend.role === "client" ? "Client" : "Counselor";
+  //   toast.success(`${userType} Registered Successfully!`);
+  //   } catch (err) {
+  //     console.error("Signup Error Details:", err.response?.data);
+  //     toast.error(err.response?.data?.message || "Registration Failed!");
+  //   }
+  // };
+  const handleSignup = async (e) => {
+  e.preventDefault();
+  try {
+    const dataToSend = {
+      fullName: formData.fullName || formData.name, // backend fullName-ah ethirpaakkuthu
+      email: formData.email,
+      password: formData.password,
+      role: role, // 'client' or 'counselor'
+      specialization: formData.specialization || "",
+      price: role === "counselor" ? (formData.price || 500) : 0,
+      services: [],
+      availability: []
+    };
+
+    const res = await API.post("/auth/register", dataToSend);
+    const userType = role === "client" ? "Client" : "Counselor";
     toast.success(`${userType} Registered Successfully!`);
-    } catch (err) {
-      console.error("Signup Error Details:", err.response?.data);
-      toast.error(err.response?.data?.message || "Registration Failed!");
-    }
-  };
+    
+    // Success aana udane login page-ku poga:
+    navigate("/login"); 
+  } catch (err) {
+    console.error("Signup Error Details:", err.response?.data);
+    toast.error(err.response?.data?.message || "Registration Failed!");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">

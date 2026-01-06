@@ -12,67 +12,62 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await API.post("/auth/login", { email, password });
-      
-      if (res.data && res.data.token) {
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      login(res.data.user, res.data.token);
-
-      toast.success(`Welcome back, ${res.data.user.fullName}!`);
-
-      if (res.data.user.role === "client") {
-        navigate("/client-dashboard");
-      } else {
-        navigate("/counselor-dashboard");
-      }  
-    }                                   
-    } catch (err) {
-      console.log(err);
-      toast.error(err.response?.data?.message || "Login Failed!");
-    }
-  };
   // const handleLogin = async (e) => {
   //   e.preventDefault();
   //   try {
   //     const res = await API.post("/auth/login", { email, password });
       
-  
-  //     console.log("Backend Data:", res.data);
-
   //     if (res.data && res.data.token) {
-  //       const token = res.data.token;
-        
-   
-  //       const userData = res.data.user || { 
-  //         role: res.data.role, 
-  //         fullName: "User", // Default name
-  //         id: res.data.id 
-  //       };
+  //     localStorage.setItem("token", res.data.token);
+  //     localStorage.setItem("user", JSON.stringify(res.data.user));
+  //     login(res.data.user, res.data.token);
 
-  //       localStorage.setItem("token", token);
-  //       localStorage.setItem("user", JSON.stringify(userData));
-        
-  //       // Context login call
-  //       login(userData, token);
+  //     toast.success(`Welcome back, ${res.data.user.fullName}!`);
 
-  //       toast.success(`Welcome back!`);
-
-  //       // Redirect logic using the safer variable
-  //       if (userData.role === "client") {
-  //         navigate("/client-dashboard");
-  //       } else {
-  //         navigate("/counselor-dashboard");
-  //       }   
-  //     }                                     
+  //     if (res.data.user.role === "client") {
+  //       navigate("/client-dashboard");
+  //     } else {
+  //       navigate("/counselor-dashboard");
+  //     }  
+  //   }                                   
   //   } catch (err) {
-  //     console.error("Login catch error:", err);
+  //     console.log(err);
   //     toast.error(err.response?.data?.message || "Login Failed!");
   //   }
   // };
+const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await API.post("/auth/login", { email, password });
+    
+    // Step 1: Backend response check
+    console.log("Login Response:", res.data); 
+
+    if (res.data && res.data.token) {
+      const user = res.data.user;
+      const token = res.data.token;
+
+      // Step 2: Storage logic
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Step 3: Global State update
+      login(user, token); 
+
+      toast.success(`Welcome back, ${user.fullName}!`);
+
+      // Step 4: Role-based Navigation
+      if (user.role === "client") {
+        navigate("/client-dashboard");
+      } else {
+        navigate("/counselor-dashboard");
+      }
+    }
+  } catch (err) {
+    console.error("Login Error Details:", err.response?.data || err.message);
+    toast.error(err.response?.data?.message || "Login Failed!");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
