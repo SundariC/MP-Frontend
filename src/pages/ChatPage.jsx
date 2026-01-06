@@ -146,3 +146,46 @@ const ChatPage = () => {
 
           return (
             <div
+              key={index}
+              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[75%] p-4 rounded-[1.5rem] text-sm font-medium shadow-sm 
+        ${
+          isMe
+            ? "bg-[#0D9488] text-white rounded-tr-none"
+            : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"
+        }`}
+              >
+                <p className="leading-relaxed text-left">{msg.text}</p>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={scrollRef} />
+      </div>
+
+      <form
+        onSubmit={handleSendMessage}
+        className="p-6 bg-white border-t border-slate-100 flex items-center gap-3"
+      >
+        <input
+          type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Type your message..."
+          className="flex-grow p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-teal-400 italic"
+        />
+        <button
+          type="submit"
+          className="bg-[#0D9488] text-white p-4 rounded-2xl hover:bg-teal-700 transition shadow-lg shadow-teal-100"
+        >
+          <Send size={18} />
+        </button>
+      </form>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
+  );
+};
+
+export default ChatPage;
