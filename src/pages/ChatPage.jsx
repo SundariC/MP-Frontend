@@ -69,26 +69,32 @@ const ChatPage = () => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = async (e) => {
+ const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    // FIXED: Using the safe user data extractor
-    const currentUser = getSafeUser();
+    // LocalStorage-la irunthu direct-ah eduthu check pannuvom
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    
+    // BACKEND check: MongoDB use pannuna '_id' nu irukkum. Itha check pannunga:
+    const currentId = user?._id || user?.id || storedUser?._id || storedUser?.id;
+    const currentRole = user?.role || storedUser?.role;
 
-    if (!currentUser.id || !currentUser.role) {
-      console.error("Critical: User data missing in both context and localStorage");
+    console.log("Debug - Current User ID:", currentId); // Console-la ithu varutha nu paarunga
+
+    if (!currentId) {
       toast.error("User session missing. Please re-login.");
       return;
     }
 
     const messageData = {
       bookingId: bookingId,
-      sender: currentUser.id,
+      sender: currentId,
       text: newMessage,
-      role: currentUser.role,
+      role: currentRole,
       timestamp: new Date().toISOString(),
     };
+    
 
     try {
       socket.emit("send_message", messageData);
