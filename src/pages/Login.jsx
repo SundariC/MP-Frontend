@@ -18,19 +18,20 @@ const Login = () => {
     const res = await API.post("/auth/login", { email, password });
     
     if (res.data && res.data.token) {
-      // Step 1: Token and User-ah save pannanum
+     
       localStorage.setItem("token", res.data.token);
       
-      // MUKKIYAM: res.data.user backend-la irunthu varutha nu confirm panni save pannunga
+
       const userData = res.data.user;
       localStorage.setItem("user", JSON.stringify(userData));
 
-      // Step 2: AuthContext update pannanum
-      login(userData, res.data.token); 
+
+
+      login(res.data.user, res.data.token);
 
       toast.success(`Welcome back, ${userData.fullName}!`);
 
-      // Step 3: Role-based navigation
+      
       if (userData.role === "client") {
         navigate("/client-dashboard");
       } else {
