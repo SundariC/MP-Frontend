@@ -17,27 +17,34 @@ const handleLogin = async (e) => {
   try {
     const res = await API.post("/auth/login", { email, password });
     
+   
+    console.log("Full Backend Data:", res.data);
+
     if (res.data && res.data.token) {
       localStorage.setItem("token", res.data.token);
       
-      const rawUser = res.data.user || res.data;
-      const userId = rawUser._id || rawUser.id || res.data.userId;
+      
+      const rawUser = res.data.user || {};
+      const userId = rawUser._id || rawUser.id || res.data.userId || res.data._id || res.data.id;
+
 
       const userData = {
         id: userId, 
         _id: userId, 
-        fullName: rawUser.fullName,
-        email: rawUser.email,
-        role: rawUser.role
+        fullName: rawUser.fullName || res.data.fullName || "User",
+        email: rawUser.email || res.data.email,
+        role: rawUser.role || res.data.role || "client"
       };
 
+    
       localStorage.setItem("user", JSON.stringify(userData));
       login(userData, res.data.token);
 
-      toast.success("Welcome back!");
+      toast.success("Login Successful!");
       navigate(userData.role === "client" ? "/client-dashboard" : "/counselor-dashboard");
     }
   } catch (err) {
+    console.error("Login catch error:", err);
     toast.error("Login Failed!");
   }
 };
