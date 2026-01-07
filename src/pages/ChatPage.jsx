@@ -20,14 +20,15 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState("");
   const scrollRef = useRef();
 
-  // FIXED: Function to reliably get user ID and role even after refresh
-  const getSafeUser = () => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    return {
-      id: user?._id || user?.id || storedUser?._id || storedUser?.id,
-      role: user?.role || storedUser?.role
-    };
+ 
+ const getSafeUser = () => {
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  return {
+    id: user?.id || storedUser?.id,
+    role: user?.role || storedUser?.role,
   };
+};
+
 
   useEffect(() => {
     if (bookingId && token) {
@@ -69,51 +70,50 @@ const ChatPage = () => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
- const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
+const handleSendMessage = async (e) => {
+  e.preventDefault();
+  if (!newMessage.trim()) return;
 
-    // LocalStorage-la irunthu direct-ah eduthu check pannuvom
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    
-    // BACKEND check: MongoDB use pannuna '_id' nu irukkum. Itha check pannunga:
-    const currentId = user?._id || user?.id || storedUser?._id || storedUser?.id;
-    const currentRole = user?.role || storedUser?.role;
+  // ✅ Single source of truth
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-    console.log("Debug - Current User ID:", currentId); // Console-la ithu varutha nu paarunga
+  const currentId = user?.id || storedUser?.id;
+  const currentRole = user?.role || storedUser?.role;
 
-    if (!currentId) {
-      toast.error("User session missing. Please re-login.");
-      return;
-    }
+  console.log("Debug - Current User ID:", currentId);
 
-    const messageData = {
-      bookingId: bookingId,
-      sender: currentId,
-      text: newMessage,
-      role: currentRole,
-      timestamp: new Date().toISOString(),
-    };
-    
+  if (!currentId) {
+    toast.error("User session missing. Please re-login.");
+    return;
+  }
 
-    try {
-      socket.emit("send_message", messageData);
-
-      await axios.post(
-        "https://mp-backend-1-82km.onrender.com/api/messages/send",
-        messageData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setMessages((prev) => [...prev, messageData]);
-      setNewMessage("");
-    } catch (err) {
-      console.error("Message send failed:", err);
-      toast.error("Failed to send message.");
-    }
+  const messageData = {
+    bookingId,
+    sender: currentId,
+    text: newMessage,
+    role: currentRole,
+    timestamp: new Date().toISOString(),
   };
+
+  try {
+    socket.emit("send_message", messageData);
+
+    await axios.post(
+      "https://mp-backend-1-82km.onrender.com/api/messages/send",
+      messageData,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setMessages((prev) => [...prev, messageData]);
+    setNewMessage("");
+  } catch (err) {
+    console.error("Message send failed:", err);
+    toast.error("Failed to send message.");
+  }
+};
+
 
   // Get user once for the UI logic
   const currentUser = getSafeUser();
@@ -148,8 +148,8 @@ const ChatPage = () => {
       <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50/50">
         {messages.map((msg, index) => {
           // FIXED: Comparing sender ID with the reliably extracted ID
-          const isMe = msg.sender === currentUser.id;
-
+         const isMe =
+  msg.sender?.toString?.() === currentUser.id?.toString?.();
           return (
             <div
               key={index}
