@@ -73,44 +73,34 @@ const ChatPage = () => {
 const handleSendMessage = async (e) => {
   e.preventDefault();
   if (!newMessage.trim()) return;
+
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-
-  const currentId = user?._id || user?.id || storedUser?._id || storedUser?.id;
-  const currentRole = user?.role || storedUser?.role;
-
-  console.log("Debug - Current User ID:", currentId);
+  
+  const currentId = user?._id || user?.id || storedUser?._id || storedUser?.id || storedUser?.userId;
 
   if (!currentId) {
-   
-    console.log("Full Stored User Object:", storedUser);
-    toast.error("User session missing. Please re-login.");
+    console.error("CRITICAL: No ID found in storage!", storedUser);
+    toast.error("Session Expired. Please Logout and Login again.");
     return;
   }
 
   const messageData = {
-    bookingId, 
+    bookingId,
     sender: currentId,
     text: newMessage,
-    role: currentRole,
+    role: user?.role || storedUser?.role || "client",
     timestamp: new Date().toISOString(),
   };
 
   try {
     socket.emit("send_message", messageData);
-
-    await axios.post(
-      "https://mp-backend-1-82km.onrender.com/api/messages/send",
-      messageData,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
+    await axios.post("https://mp-backend-1-82km.onrender.com/api/messages/send", messageData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     setMessages((prev) => [...prev, messageData]);
     setNewMessage("");
   } catch (err) {
-    console.error("Message send failed:", err);
-    toast.error("Failed to send message.");
+    toast.error("Message failed to send.");
   }
 };
 

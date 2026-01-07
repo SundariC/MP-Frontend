@@ -17,28 +17,25 @@ const handleLogin = async (e) => {
   try {
     const res = await API.post("/auth/login", { email, password });
     
-    console.log("Login Response Data:", res.data);
-
     if (res.data && res.data.token) {
       localStorage.setItem("token", res.data.token);
+      
+      const rawUser = res.data.user || res.data;
+      const userId = rawUser._id || rawUser.id || res.data.userId;
 
-      const userData = res.data.user || res.data; 
-      const userId = userData._id || userData.id || res.data.userId;
-
-      const finalUser = {
+      const userData = {
         id: userId, 
-        fullName: userData.fullName,
-        email: userData.email,
-        role: userData.role
+        _id: userId, 
+        fullName: rawUser.fullName,
+        email: rawUser.email,
+        role: rawUser.role
       };
 
-      console.log("Saving this to LocalStorage:", finalUser);
+      localStorage.setItem("user", JSON.stringify(userData));
+      login(userData, res.data.token);
 
-      localStorage.setItem("user", JSON.stringify(finalUser));
-      login(finalUser, res.data.token);
-
-      toast.success("Login Success!");
-      navigate(finalUser.role === "client" ? "/client-dashboard" : "/counselor-dashboard");
+      toast.success("Welcome back!");
+      navigate(userData.role === "client" ? "/client-dashboard" : "/counselor-dashboard");
     }
   } catch (err) {
     toast.error("Login Failed!");
