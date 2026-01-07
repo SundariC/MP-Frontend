@@ -12,35 +12,36 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
 
-  const handleLogin = async (e) => {
+const handleLogin = async (e) => {
   e.preventDefault();
   try {
     const res = await API.post("/auth/login", { email, password });
     
+    console.log("Login Response Data:", res.data);
+
     if (res.data && res.data.token) {
-     
       localStorage.setItem("token", res.data.token);
-      
 
-      const userData = res.data.user;
-      localStorage.setItem("user", JSON.stringify(userData));
+      const userData = res.data.user || res.data; 
+      const userId = userData._id || userData.id || res.data.userId;
 
+      const finalUser = {
+        id: userId, 
+        fullName: userData.fullName,
+        email: userData.email,
+        role: userData.role
+      };
 
+      console.log("Saving this to LocalStorage:", finalUser);
 
-      login(res.data.user, res.data.token);
+      localStorage.setItem("user", JSON.stringify(finalUser));
+      login(finalUser, res.data.token);
 
-      toast.success(`Welcome back, ${userData.fullName}!`);
-
-      
-      if (userData.role === "client") {
-        navigate("/client-dashboard");
-      } else {
-        navigate("/counselor-dashboard");
-      }
+      toast.success("Login Success!");
+      navigate(finalUser.role === "client" ? "/client-dashboard" : "/counselor-dashboard");
     }
   } catch (err) {
-    console.error("Login Error:", err.response?.data);
-    toast.error(err.response?.data?.message || "Login Failed!");
+    toast.error("Login Failed!");
   }
 };
   // const handleLogin = async (e) => {
