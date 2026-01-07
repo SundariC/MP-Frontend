@@ -73,22 +73,22 @@ const ChatPage = () => {
 const handleSendMessage = async (e) => {
   e.preventDefault();
   if (!newMessage.trim()) return;
-
-  // ✅ Single source of truth
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const currentId = user?.id || storedUser?.id;
+  const currentId = user?._id || user?.id || storedUser?._id || storedUser?.id;
   const currentRole = user?.role || storedUser?.role;
 
   console.log("Debug - Current User ID:", currentId);
 
   if (!currentId) {
+   
+    console.log("Full Stored User Object:", storedUser);
     toast.error("User session missing. Please re-login.");
     return;
   }
 
   const messageData = {
-    bookingId,
+    bookingId, 
     sender: currentId,
     text: newMessage,
     role: currentRole,
