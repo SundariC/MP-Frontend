@@ -27,6 +27,7 @@ const ClientDashboard = () => {
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showBellPopup, setShowBellPopup] = useState(false);
+  const [allCounselors, setAllCounselors] = useState([]);
   const [activeTab, setActiveTab] = useState("requests"); // Default to requests like counselor
   
   const fetchUserSessions = async () => {
@@ -58,6 +59,31 @@ const ClientDashboard = () => {
       toast.error("Unable to end session");
     }
   };
+
+   useEffect(() => {
+      const fetchCounselors = async () => {
+        try {
+          const res = await API.get("/auth/counselors");
+          
+          const formattedReal = (res.data || []).map((doc) => ({
+            _id: doc._id,
+            fullName: doc.fullName || "Unnamed Counselor",
+            specialization: doc.specialization || "General Counseling",
+            price: doc.price || 500,
+            rating: doc.rating || 4.5,
+            experience: doc.experience || "0",
+            location: doc.location || "Online",
+            bio: doc.bio || "Professional counselor available for sessions.",
+            image: doc.image || `https://ui-avatars.com/api/?name=${doc.fullName || "Counselor"}&background=0D9488&color=fff`,
+          }));
+  
+          setAllCounselors(formattedReal);
+        } catch (error) {
+          console.error("Error fetching counselors:", error);
+        }
+      };
+      fetchCounselors();
+    }, []);
 
   // Logic to separate bookings (Counselor Model)
   const requests = bookings.filter(b => b.sessionStatus === "UPCOMING" && !b.videoLink);
@@ -171,7 +197,7 @@ const ClientDashboard = () => {
                         <p className="text-[10px] text-slate-500 font-bold italic flex items-center gap-1 mt-1"><Clock size={10}/> {new Date(b.appointmentDate).toLocaleDateString()}</p>
                       </div>
                       <span className="bg-teal-100 text-teal-700 text-[9px] font-black px-2 py-1 rounded-md uppercase">Completed</span>
-                      <button onClick={() => { navigate(`/book-session/${b.counselor._id}`) }} className="flex-1 bg-white border border-slate-200 py-2 rounded-xl font-black text-[10px] text-teal-600 flex items-center justify-center gap-2 shadow-sm italic"> BOOK AGAIN</button>
+                      <button onClick={() => navigate("/checkoutPage", { state: { counselor: doc } })} className="w-full py-2 bg-teal-600 text-white rounded-2xl font-black text-[10px] hover:bg-teal-700 transition-all shadow-lg italic uppercase flex items-center justify-center gap-2"> BOOK AGAIN</button>
                     </div>
                     <div className="flex gap-4">
                       <button onClick={() => { setSelectedNote(b.sessionNotes); setShowNoteModal(true); }} className="flex-1 bg-white border border-slate-200 py-2 rounded-xl font-black text-[10px] text-teal-600 flex items-center justify-center gap-2 shadow-sm italic"><ClipboardList size={14} /> VIEW SESSION NOTES</button>
