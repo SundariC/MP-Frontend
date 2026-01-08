@@ -47,6 +47,7 @@ const CounselorDashboard = () => {
       const res = await API.get("/bookings/my-bookings", {
         headers: { Authorization: `Bearer ${token}` },
       });
+       console.log("Sessions fetched:", res);
       setBookings(res.data);
     } catch (err) {
       console.error("Fetch error", err);
