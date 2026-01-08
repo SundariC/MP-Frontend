@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { io } from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
+import API from "../services/api";
 
 // Socket configuration with transports to fix connection issues
 const socket = io("https://mp-backend-1-82km.onrender.com", {
@@ -54,12 +55,9 @@ const ChatPage = () => {
 
   const fetchChatHistory = async () => {
     try {
-      const res = await axios.get(
-        `https://mp-backend-1-82km.onrender.com/api/messages/${bookingId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await API.get(`/messages/${bookingId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setMessages(res.data);
     } catch (err) {
       console.error("Chat history load error", err);
@@ -94,7 +92,7 @@ const handleSendMessage = async (e) => {
 
   try {
     socket.emit("send_message", messageData);
-    await axios.post("https://mp-backend-1-82km.onrender.com/api/messages/send", messageData, {
+    await API.post("/messages/send", messageData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setMessages((prev) => [...prev, messageData]);

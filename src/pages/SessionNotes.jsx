@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Save, FileText, ArrowLeft } from 'lucide-react';
 import { toast } from 'react-toastify';
+import API from '../services/api';
 
 const SessionNotes = () => {
   const { bookingId } = useParams();
@@ -17,8 +18,7 @@ const SessionNotes = () => {
   }
 
   try {
-  
-    await axios.post('https://mp-backend-1-82km.onrender.com/api/session/create', {
+    await API.post('/session/create', {
       bookingId: bookingId,
       sessionNotes: notes
     }, {
@@ -26,7 +26,7 @@ const SessionNotes = () => {
     });
 
   
-    await axios.put(`https://mp-backend-1-82km.onrender.com/api/bookings/update-status`, {
+    await API.put("/bookings/update-status", {
       bookingId: bookingId,
       sessionStatus: "COMPLETED"
     }, {

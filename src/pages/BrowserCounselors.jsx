@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Search, Star, MapPin, Briefcase } from "lucide-react";
+import API from "../services/api";
 
 
 const BrowserCounselor = () => {
@@ -13,7 +14,7 @@ const BrowserCounselor = () => {
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
-        const res = await axios.get("https://mp-backend-1-82km.onrender.com/api/auth/counselors");
+        const res = await API.get("/auth/counselors");
         
         const formattedReal = (res.data || []).map((doc) => ({
           _id: doc._id,

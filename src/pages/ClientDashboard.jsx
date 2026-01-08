@@ -18,6 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import API from "../services/api";
 
 const ClientDashboard = () => {
   const { token, user, logout } = useAuth();
@@ -30,10 +31,9 @@ const ClientDashboard = () => {
   
   const fetchUserSessions = async () => {
     try {
-      const res = await axios.get(
-        "https://mp-backend-1-82km.onrender.com/api/bookings/my-bookings",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await API.get("/bookings/my-bookings", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setBookings(res.data);
     } catch (err) {
       console.error("Error fetching sessions", err);
@@ -46,8 +46,8 @@ const ClientDashboard = () => {
 
     const endSession = async (bookingId) => {
     try {
-      await axios.put(
-        `https://mp-backend-1-82km.onrender.com/api/bookings/end-session/${bookingId}`,
+      await API.put(
+        `/bookings/end-session/${bookingId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

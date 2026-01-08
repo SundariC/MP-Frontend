@@ -20,6 +20,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import API from "../services/api";
 
 const CounselorDashboard = () => {
   const { token, user, logout } = useAuth();
@@ -43,12 +44,9 @@ const CounselorDashboard = () => {
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get(
-        "https://mp-backend-1-82km.onrender.com/api/bookings/my-bookings",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await API.get("/bookings/my-bookings", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setBookings(res.data);
     } catch (err) {
       console.error("Fetch error", err);
@@ -57,8 +55,7 @@ const CounselorDashboard = () => {
 
   const fetchUserSessions = async () => {
     try {
-      const res = await axios.get(
-        "https://mp-backend-1-82km.onrender.com/api/bookings/my-bookings",
+      const res = await API.get("/bookings/my-bookings", 
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -79,15 +76,11 @@ const CounselorDashboard = () => {
   const handleEndAndSave = async (bookingId) => {
     try {
       const notes = sessionNotes[bookingId] || "";
-      await axios.put(
-        "https://mp-backend-1-82km.onrender.com/api/bookings/update-status",
-        {
-          bookingId,
-          sessionStatus: "COMPLETED",
-          sessionNotes: notes,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await API.put("/bookings/update-status", {
+        bookingId,
+        sessionStatus: "COMPLETED",
+        sessionNotes: notes,
+      }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success("Session completed & saved to Records!");
       fetchBookings();
     } catch (err) {
@@ -97,11 +90,10 @@ const CounselorDashboard = () => {
 
   const updateStatus = async (bookingId, status) => {
     try {
-      await axios.put(
-        "https://mp-backend-1-82km.onrender.com/api/bookings/update-status",
-        { bookingId, sessionStatus: status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await API.put("/bookings/update-status", {
+        bookingId,
+        sessionStatus: status,
+      }, { headers: { Authorization: `Bearer ${token}` } });
       toast.info(`Status updated to ${status}`);
       fetchBookings();
     } catch (err) {
