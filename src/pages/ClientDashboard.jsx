@@ -171,6 +171,7 @@ const ClientDashboard = () => {
                         <p className="text-[10px] text-slate-500 font-bold italic flex items-center gap-1 mt-1"><Clock size={10}/> {new Date(b.appointmentDate).toLocaleDateString()}</p>
                       </div>
                       <span className="bg-teal-100 text-teal-700 text-[9px] font-black px-2 py-1 rounded-md uppercase">Completed</span>
+                      <button onClick={() => { navigate(`/book-session/${b.counselor._id}`) }} className="flex-1 bg-white border border-slate-200 py-2 rounded-xl font-black text-[10px] text-teal-600 flex items-center justify-center gap-2 shadow-sm italic"> BOOK AGAIN</button>
                     </div>
                     <div className="flex gap-4">
                       <button onClick={() => { setSelectedNote(b.sessionNotes); setShowNoteModal(true); }} className="flex-1 bg-white border border-slate-200 py-2 rounded-xl font-black text-[10px] text-teal-600 flex items-center justify-center gap-2 shadow-sm italic"><ClipboardList size={14} /> VIEW SESSION NOTES</button>
