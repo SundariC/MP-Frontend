@@ -67,7 +67,7 @@ const CheckoutPage = () => {
 
   } catch (err) {
     console.error(err);
-    toast.error("Booking failed. Server connect aagala!");
+    toast.error("Booking failed. Server Not connected.");
   }
 };
 
