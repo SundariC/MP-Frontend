@@ -287,16 +287,19 @@ const ClientDashboard = () => {
                           </button>
                         </div>
                         <button
-                          onClick={() =>
+                          onClick={() => {
+                            const counselorData = {
+                              ...b.counselor,
+
+                              _id: b.counselor?._id || b.counselorId,
+                            };
+
+                            console.log("Booking Again with:", counselorData);
+
                             navigate("/checkoutPage", {
-                              state: {
-                                counselor: {
-                                  ...b.counselor,
-                                  _id: b.counselor?._id || b.counselorId, 
-                                },
-                              },
-                            })
-                          }
+                              state: { counselor: counselorData },
+                            });
+                          }}
                           className="w-full py-3 bg-teal-600 text-white rounded-xl font-black text-[11px] hover:bg-teal-700 transition-all shadow-md italic uppercase flex items-center justify-center gap-2"
                         >
                           <Calendar size={14} /> BOOK AGAIN WITH DR.{" "}
