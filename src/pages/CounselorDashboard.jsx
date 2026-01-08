@@ -60,6 +60,7 @@ const CounselorDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      console.log("Sessions fetched:", res);
       setSessions(res.data);
     } catch (err) {
       console.error("Error fetching sessions", err);
