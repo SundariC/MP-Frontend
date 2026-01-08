@@ -27,8 +27,7 @@ const ClientDashboard = () => {
   const [selectedNote, setSelectedNote] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showBellPopup, setShowBellPopup] = useState(false);
-  const [allCounselors, setAllCounselors] = useState([]);
-  const [activeTab, setActiveTab] = useState("requests"); // Default to requests like counselor
+  const [activeTab, setActiveTab] = useState("requests"); 
   
   const fetchUserSessions = async () => {
     try {
@@ -59,31 +58,6 @@ const ClientDashboard = () => {
       toast.error("Unable to end session");
     }
   };
-
-   useEffect(() => {
-      const fetchCounselors = async () => {
-        try {
-          const res = await API.get("/auth/counselors");
-          
-          const formattedReal = (res.data || []).map((doc) => ({
-            _id: doc._id,
-            fullName: doc.fullName || "Unnamed Counselor",
-            specialization: doc.specialization || "General Counseling",
-            price: doc.price || 500,
-            rating: doc.rating || 4.5,
-            experience: doc.experience || "0",
-            location: doc.location || "Online",
-            bio: doc.bio || "Professional counselor available for sessions.",
-            image: doc.image || `https://ui-avatars.com/api/?name=${doc.fullName || "Counselor"}&background=0D9488&color=fff`,
-          }));
-  
-          setAllCounselors(formattedReal);
-        } catch (error) {
-          console.error("Error fetching counselors:", error);
-        }
-      };
-      fetchCounselors();
-    }, []);
 
   // Logic to separate bookings (Counselor Model)
   const requests = bookings.filter(b => b.sessionStatus === "UPCOMING" && !b.videoLink);
