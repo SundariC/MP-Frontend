@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API from "../services/api";
+import { io } from "socket.io-client";
 
 const ClientDashboard = () => {
   const { token, user, logout } = useAuth();
@@ -43,7 +44,18 @@ const ClientDashboard = () => {
 
   useEffect(() => {
     if (token) fetchUserSessions();
-  }, [token]);
+    const socket = io("https://mp-backend-1-82km.onrender.com");
+    socket.emit("join_room", user?._id);
+    socket.on("receive_call_notification", (data) => {
+      if (
+        window.confirm(`${data.senderName} is starting the session. Join now?`)
+      ) {
+        navigate(`/video-call/${data.sessionId}`);
+      }
+    });
+
+    return () => socket.disconnect();
+  }, [token, user]);
 
   const endSession = async (bookingId) => {
     try {
@@ -214,7 +226,15 @@ const ClientDashboard = () => {
                       </div>
                       <div className="flex gap-3">
                         <button
-                          onClick={() => navigate(`/video-call/${b._id}`)}
+                          onClick={() => {
+                            const socket = io("https://mp-backend-1-82km.onrender.com");
+                            socket.emit("send_call_notification", {
+                              sessionId: b._id,
+                              receiverId: b.counselorId, 
+                              senderName: user.fullName,
+                            });
+                            navigate(`/video-call/${b._id}`);
+                          }}
                           className="flex-[2] bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 italic"
                         >
                           START VIDEO CALL
@@ -288,11 +308,10 @@ const ClientDashboard = () => {
                         </div>
                         <button
                           onClick={() => {
-                            
                             const safeCounselor = {
                               _id: b.counselor?._id || b.counselorId,
                               fullName: b.counselor?.fullName || "Counselor",
-                              price: b.counselor?.price || 500, 
+                              price: b.counselor?.price || 500,
                               specialization: b.counselor?.specialization || "",
                               image: b.counselor?.image || "",
                             };
