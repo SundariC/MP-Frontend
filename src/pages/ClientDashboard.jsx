@@ -288,13 +288,21 @@ const ClientDashboard = () => {
                         </div>
                         <button
                           onClick={() => {
+                            
+                            const safeCounselor = {
+                              _id: b.counselor?._id || b.counselorId,
+                              fullName: b.counselor?.fullName || "Counselor",
+                              price: b.counselor?.price || 500, 
+                              specialization: b.counselor?.specialization || "",
+                              image: b.counselor?.image || "",
+                            };
+
+                            console.log(
+                              "Checking data before navigate:",
+                              safeCounselor
+                            );
                             navigate("/checkoutPage", {
-                              state: {
-                                counselor: {
-                                  ...b.counselor, // Name, price, specialization ellam irukkum
-                                  _id: b.counselor?._id || b.counselorId, // ID-ah 'BrowserCounselor' anupura maariye '_id' key-la anupuvom
-                                },
-                              },
+                              state: { counselor: safeCounselor },
                             });
                           }}
                           className="w-full py-3 bg-teal-600 text-white rounded-xl font-black text-[11px] hover:bg-teal-700 transition-all shadow-md italic uppercase flex items-center justify-center gap-2"
