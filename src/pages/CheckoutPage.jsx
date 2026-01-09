@@ -17,59 +17,63 @@ const CheckoutPage = () => {
   });
 
   const handleBooking = async () => {
-  if (!bookingData.appointmentDate || !bookingData.timeSlot) {
-    return toast.warning("Please select date and time");
-  }
+    if (!bookingData.appointmentDate || !bookingData.timeSlot) {
+      return toast.warning("Please select date and time");
+    }
 
-  try {
-    // 1. Create Order on Backend
-    const orderRes = await API.post('/bookings/create-order', {
-      amount: counselor.price 
-    });
+    try {
+      // 1. Create Order on Backend
+      const orderRes = await API.post('/bookings/create-order', {
+        amount: Number(counselor.price) * 100 // Razorpay needs paise (multiply by 100)
+      });
 
-    const { amount, id: order_id, currency } = orderRes.data.order;
+      const { amount, id: order_id, currency } = orderRes.data.order;
 
-    // 2. Razorpay Options
-    const options = {
-      key: orderRes.data.key,
-      amount: amount,
-      currency: currency,
-      name: "MindEase Counseling",
-      description: `Booking with ${counselor.fullName}`,
-      order_id: order_id,
-      handler: async function (response) {
-        try {
-          // 3. Verify Payment & Create Booking Record on Backend
-          await API.post('/bookings/create', {
-            counselor: counselor._id,  
-            appointmentDate: bookingData.appointmentDate,
-            timeSlot: bookingData.timeSlot,
-            amount: counselor.price,
-            sessionType: "mental",  
-            paymentId: response.razorpay_payment_id  
-          });
+      // 2. Razorpay Options
+      const options = {
+        key: orderRes.data.key,
+        amount: amount,
+        currency: currency,
+        name: "MindEase Counseling",
+        description: `Booking with ${counselor.fullName}`,
+        order_id: order_id,
+        handler: async function (response) {
+          try {
+            // SAFE ID EXTRACTION: Ithu thaan expert list matrum dashboard rendu pakkamum work aaga vaikkum
+            const finalId = counselor?._id || counselor?.id;
 
-          toast.success("Payment Successful & Booking Confirmed!");
-          navigate('/client-dashboard');
-        } catch (err) {
-          toast.error("Booking record failed, but payment done. Contact support.");
-        }
-      },
-      prefill: {
-        name: user?.fullName,
-        email: user?.email,
-      },
-      theme: { color: "#0D9488" },  
-    };
+            // 3. Verify Payment & Create Booking Record on Backend
+            await API.post('/bookings/create', {
+              counselor: finalId, // Correct counselor ID key  
+              appointmentDate: bookingData.appointmentDate,
+              timeSlot: bookingData.timeSlot,
+              amount: counselor.price,
+              sessionType: "mental",  
+              paymentId: response.razorpay_payment_id  
+            });
 
-    const rzp1 = new window.Razorpay(options);
-    rzp1.open();
+            toast.success("Payment Successful & Booking Confirmed!");
+            navigate('/client-dashboard');
+          } catch (err) {
+            console.error("Verification error:", err.response?.data);
+            toast.error("Booking record failed, but payment done. Contact support.");
+          }
+        },
+        prefill: {
+          name: user?.fullName,
+          email: user?.email,
+        },
+        theme: { color: "#0D9488" },  
+      };
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Booking failed. Server Not connected.");
-  }
-};
+      const rzp1 = new window.Razorpay(options);
+      rzp1.open();
+
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Booking failed. Server Not connected.");
+    }
+  };
 
   if (!counselor) return <p className="pt-32 text-center">No counselor selected.</p>;
 
@@ -82,7 +86,7 @@ const CheckoutPage = () => {
       <div className="grid md:grid-cols-3 gap-8">
         {/* Left: Counselor Card */}
         <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm h-fit">
-          <img src={counselor.image} className="w-24 h-24 rounded-3xl mb-4" />
+          <img src={counselor.image} className="w-24 h-24 rounded-3xl mb-4" alt={counselor.fullName} />
           <h2 className="text-xl font-black text-slate-800">{counselor.fullName}</h2>
           <p className="text-teal-600 font-bold text-xs uppercase mb-4">{counselor.specialization}</p>
           <div className="border-t pt-4">
@@ -99,6 +103,8 @@ const CheckoutPage = () => {
             </h3>
             <input 
               type="date" 
+              // Past dates block panna min logic sethurukaen
+              min={new Date().toISOString().split("T")[0]}
               className="w-full p-4 bg-slate-50 border rounded-2xl outline-none"
               onChange={(e) => setBookingData({...bookingData, appointmentDate: e.target.value})}
             />
@@ -112,6 +118,7 @@ const CheckoutPage = () => {
               {['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM', '06:00 PM'].map(slot => (
                 <button 
                   key={slot}
+                  type="button"
                   onClick={() => setBookingData({...bookingData, timeSlot: slot})}
                   className={`p-3 rounded-xl font-bold text-xs border transition-all ${bookingData.timeSlot === slot ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-100 hover:border-teal-200'}`}
                 >
