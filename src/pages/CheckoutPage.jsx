@@ -24,7 +24,7 @@ const CheckoutPage = () => {
     try {
       // 1. Create Order on Backend
       const orderRes = await API.post('/bookings/create-order', {
-        amount: Number(counselor.price) * 100 // Razorpay needs paise (multiply by 100)
+        amount: Number(counselor.price) 
       });
 
       const { amount, id: order_id, currency } = orderRes.data.order;
