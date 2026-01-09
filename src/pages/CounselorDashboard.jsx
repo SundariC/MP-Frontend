@@ -20,7 +20,6 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { io } from "socket.io-client";
 
 const CounselorDashboard = () => {
   const { token, user, logout } = useAuth();
@@ -71,21 +70,11 @@ const CounselorDashboard = () => {
   };
 
   useEffect(() => {
-    if (token) fetchUserSessions();
-    const socket = io("https://mp-backend-1-82km.onrender.com");
-
-    socket.emit("join_room", user?._id);
-
-    socket.on("receive_call_notification", (data) => {
-      if (
-        window.confirm(`${data.senderName} is starting the session. Join now?`)
-      ) {
-        navigate(`/video-call/${data.sessionId}`);
-      }
-    });
-
-    return () => socket.disconnect();
-  }, [token, user]);
+    if (token) {
+      fetchBookings();
+      fetchUserSessions();
+    }
+  }, [token]);
 
   const handleEndAndSave = async (bookingId) => {
     try {
@@ -290,17 +279,7 @@ const CounselorDashboard = () => {
 
                       <div className="flex gap-3">
                         <button
-                          onClick={() => {
-                            const socket = io(
-                              "https://mp-backend-1-82km.onrender.com"
-                            );
-                            socket.emit("send_call_notification", {
-                              sessionId: b._id,
-                              receiverId: b.userId,
-                              senderName: user.fullName,
-                            });
-                            navigate(`/video-call/${b._id}`);
-                          }}
+                          onClick={() => navigate(`/video-call/${b._id}`)}
                           className="flex-[2] bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2"
                         >
                           START CALL
@@ -522,6 +501,7 @@ const CounselorDashboard = () => {
 
 export default CounselorDashboard;
 
+
 // import React, { useEffect, useState } from "react";
 // import axios from "axios";
 // import {
@@ -580,7 +560,7 @@ export default CounselorDashboard;
 
 //   const fetchUserSessions = async () => {
 //     try {
-//       const res = await API.get("/bookings/my-bookings",
+//       const res = await API.get("/bookings/my-bookings", 
 //         {
 //           headers: { Authorization: `Bearer ${token}` },
 //         }
